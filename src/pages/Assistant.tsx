@@ -1,16 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Bot, Send, Menu, X, Plus, Search, MoreHorizontal, User, Settings, LogOut, MessageSquare, Paperclip, Sparkles, Moon, Sun } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ReactMarkdown from 'react-markdown';
-import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
+import AssistantHeader from "@/components/assistant/AssistantHeader";
+import ChatInput from "@/components/assistant/ChatInput";
+import ChatMessages from "@/components/assistant/ChatMessages";
+import GreetingSection from "@/components/assistant/GreetingSection";
+import SuggestedQueriesSidebar from "@/components/assistant/SuggestedQueriesSidebar";
 
 interface Message {
   id: string;
@@ -28,17 +24,17 @@ interface Chat {
 }
 
 const Assistant = () => {
- // tracks if first prompt sent
-const [showRightPanel, setShowRightPanel] = useState(false);
+  // tracks if first prompt sent
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
-   const [animatedContent, setAnimatedContent] = useState('');
-   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
+  const [animatedContent, setAnimatedContent] = useState('');
+  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
   const rawUsername = localStorage.getItem("username") || "User";
   const firstName = rawUsername.split(".")[0];
   const lastName = rawUsername.split(".")[1];
-const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUpperCase(); 
+  const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUpperCase(); 
   const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
 
   const navigate = useNavigate();
@@ -47,7 +43,6 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
   const [currentInput, setCurrentInput] = useState("");
   const [currentChatId, setCurrentChatId] = useState("1");
   const [isTyping, setIsTyping] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [showSuggestedQueries, setShowSuggestedQueries] = useState(false);
   
@@ -62,15 +57,12 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
   ]);
 
   const currentChat = chats.find(chat => chat.id === currentChatId);
-  const filteredChats = chats.filter(chat => 
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const hasMessages = currentChat?.messages && currentChat.messages.length > 0;
   const showGreeting = !hasMessages && !inputFocused && !currentInput.trim();
-//currently added 
+  //currently added 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -78,23 +70,28 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
     }
   }, [currentChat?.messages.length]);
 
-  function animateMarkdownMessage(fullText: string, messageId: string) {
-  setAnimatedContent('');
-  setAnimatingMessageId(messageId);
+  // Debug effect to monitor currentInput changes
+  useEffect(() => {
+    console.log('currentInput changed to:', currentInput);
+  }, [currentInput]);
 
-  let i = 0;
-  const chunkSize = 4; // Reveal 4 characters at a time for fluidity
-  const interval = setInterval(() => {
-    setAnimatedContent(fullText.slice(0, i + chunkSize));
-    i += chunkSize;
-    if (i >= fullText.length) {
-      clearInterval(interval);
-      setAnimatingMessageId(null);
-      setAnimatedContent(''); // Reset after animation is done
-    }
-  }, 16); // 16ms for ~60fps, tweak for speed
-}
-// ...........................
+  function animateMarkdownMessage(fullText: string, messageId: string) {
+    setAnimatedContent('');
+    setAnimatingMessageId(messageId);
+
+    let i = 0;
+    const chunkSize = 4; // Reveal 4 characters at a time for fluidity
+    const interval = setInterval(() => {
+      setAnimatedContent(fullText.slice(0, i + chunkSize));
+      i += chunkSize;
+      if (i >= fullText.length) {
+        clearInterval(interval);
+        setAnimatingMessageId(null);
+        setAnimatedContent(''); // Reset after animation is done
+      }
+    }, 16); // 16ms for ~60fps, tweak for speed
+  }
+
   const handleSendMessage = async () => {
     if (!currentInput.trim()) return;
 
@@ -117,102 +114,47 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
     setIsTyping(true);
     setShowSuggestedQueries(true);
 
-  //   // Simulate AI response
-  //   setTimeout(() => {
-  //     const assistantMessage: Message = {
-  //       id: (Date.now() + 1).toString(),
-  //       content: "I'm here to help you with any questions or tasks you might have. Whether you need assistance with writing, analysis, problem-solving, or creative projects, I'm ready to provide thoughtful and helpful responses.",
-  //       sender: 'assistant',
-  //       timestamp: new Date()
-  //     };
+    try {
+      const username = localStorage.getItem("username");
+      // Send question to backend
+      const response = await fetch("http://127.0.0.1:8000/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, query: userMessage.content }),
+      });
+      const result = await response.json();
 
-  //     setChats(prev => prev.map(chat => 
-  //       chat.id === currentChatId 
-  //         ? { 
-  //             ...chat, 
-  //             messages: [...chat.messages, assistantMessage],
-  //             lastMessage: assistantMessage.content.substring(0, 50) + "...",
-  //             title: userMessage.content.substring(0, 30) + "..."
-  //           }
-  //         : chat
-  //     ));
-  //     setIsTyping(false);
-  //   }, 1500);
-  // };
-
-   try {
-    const username = localStorage.getItem("username");
-    // Send question to backend
-    const response = await fetch("http://127.0.0.1:8000/api/query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, query: userMessage.content }),
-    });
-    const result = await response.json();
-
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      content: result.success ? result.answer : "Sorry, I can't assist with that.",
-      sender: 'assistant',
-      timestamp: new Date()
-    };
-   animateMarkdownMessage(assistantMessage.content, assistantMessage.id);
-    setChats(prev => prev.map(chat => 
-      chat.id === currentChatId 
-        ? { 
-            ...chat, 
-            messages: [...chat.messages, assistantMessage],
-            lastMessage: assistantMessage.content.substring(0, 50) + "...",
-            title: userMessage.content.substring(0, 30) + "..."
-          }
-        : chat
-    ));
-  } catch (error) {
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      content: "Sorry, I can't assist with that.",
-      sender: 'assistant',
-      timestamp: new Date()
-    };
-    setChats(prev => prev.map(chat => 
-      chat.id === currentChatId 
-        ? { ...chat, messages: [...chat.messages, assistantMessage] }
-        : chat
-    ));
-  }
-  setIsTyping(false);
-};
-  const handleNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now().toString(),
-      title: "New Thread",
-      lastMessage: "",
-      timestamp: new Date(),
-      messages: []
-    };
-    
-    setChats(prev => [newChat, ...prev]);
-    setCurrentChatId(newChat.id);
-    setInputFocused(false);
-    setCurrentInput("");
-    setShowSuggestedQueries(false);
-    
-    toast({
-      title: "New Thread Created",
-      description: "Start a fresh conversation"
-    });
-  };
-
-  const handleDeleteChat = (chatId: string) => {
-    setChats(prev => prev.filter(chat => chat.id !== chatId));
-    if (currentChatId === chatId && chats.length > 1) {
-      setCurrentChatId(chats.find(chat => chat.id !== chatId)?.id || "");
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: result.success ? result.answer : "Sorry, I can't assist with that.",
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      animateMarkdownMessage(assistantMessage.content, assistantMessage.id);
+      setChats(prev => prev.map(chat => 
+        chat.id === currentChatId 
+          ? { 
+              ...chat, 
+              messages: [...chat.messages, assistantMessage],
+              lastMessage: assistantMessage.content.substring(0, 50) + "...",
+              title: userMessage.content.substring(0, 30) + "..."
+            }
+          : chat
+      ));
+    } catch (error) {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "Sorry, I can't assist with that.",
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      setChats(prev => prev.map(chat => 
+        chat.id === currentChatId 
+          ? { ...chat, messages: [...chat.messages, assistantMessage] }
+          : chat
+      ));
     }
-    
-    toast({
-      title: "Thread Deleted",
-      description: "The conversation has been removed"
-    });
+    setIsTyping(false);
   };
 
   const handleLogout = () => {
@@ -224,9 +166,19 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
   };
 
   const handleSuggestedQuery = (query: string) => {
+    console.log('Suggested query clicked:', query);
     setCurrentInput(query);
     setInputFocused(true);
-     setShowRightPanel(true);
+    setShowRightPanel(true);
+    
+    // Focus the input field after a short delay to ensure state is updated
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
+    
+    console.log('State updated - currentInput should be:', query);
   };
 
   const suggestedQueries = [
@@ -235,93 +187,19 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
     { text: "What is the available quantity of 100/45R29 73H in Mysore", icon: "📋" },
     { text: "Show me my sales .", icon: "⚙️" }
   ];
-  // const rightSideSuggestions = [
-  //   "List all claims I've raised along with their statuses",
-  //   "Give me specification about product UrbanBias",
-  //   "What is the available quantity of 100/45R29 73H in Mysore",
-  //   "Show me my sales performance summary.",
-  //   "Show me similiar products to ",
-  
-  // ];
 
-  const { theme, setTheme } = useTheme();
+
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 dark:text-white flex overflow-hidden">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 dark:text-white border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden shadow-sm`}>
-        {/* Sidebar Content */}
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-          <Button 
-            onClick={handleNewChat}
-            className="w-full bg-black hover:bg-gray-800 text-white h-12 rounded-xl font-medium"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Thread
-          </Button>
-        </div>
-        
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input 
-              placeholder="Search thread"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-50 border-gray-200 h-10 rounded-lg focus:bg-white"
-            />
+        {/* Empty Sidebar - Just keeping the toggle functionality */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-gray-500 dark:text-gray-400">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">Sidebar</p>
           </div>
-        </div>
-        
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-2 space-y-1">
-              {filteredChats.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
-                    currentChatId === chat.id ? 'bg-gray-100 border border-gray-200' : ''
-                  }`}
-                  onClick={() => setCurrentChatId(chat.id)}
-                >
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <MessageSquare className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {chat.title}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-300 truncate">
-                        {chat.lastMessage || "No messages yet"}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-                      >
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg dark:text-white">
-                      <DropdownMenuItem className="text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                        Rename Thread
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
-                        onClick={() => handleDeleteChat(chat.id)}
-                      >
-                        Delete Thread
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
         </div>
       </div>
 
@@ -330,257 +208,56 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
         {/* Chat Area */}
         <div className={`${showSuggestedQueries ? 'flex-1' : 'w-full'} flex flex-col bg-white dark:bg-gray-900 dark:text-white relative transition-all duration-300`}>
           {/* Header */}
-          <div className="h-16 bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 relative z-10">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 h-10 w-10 p-0 rounded-lg"
-              >
-                {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-              
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-lg italic font-medium text-gray-900 dark:text-white">
-                <img src="public\logo.png" alt="Wheely Logo" className="w-25 h-8" />
-                 <p className="font-bold dark:text-white">Wheely</p>
-              </div>
-
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Dark Mode Toggle Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label="Toggle dark mode"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-gray-800 bg-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-gray-100">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gray-200 text-gray-700 text-sm font-medium">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-white border-gray-200 shadow-lg" align="end">
-                  <div className="px-4 py-3">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{firstName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-300"></p>
-                    <Badge variant="secondary" className="mt-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 text-xs">
-                     Dealer
-                    </Badge>
-                  </div>
-                  <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-                  <DropdownMenuItem className="text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-                  <DropdownMenuItem 
-                    className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
+          <AssistantHeader
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            handleLogout={handleLogout}
+            initials={initials}
+            firstName={firstName}
+          />
 
           {/* Chat Content */}
           <div className="flex-1 flex flex-col overflow-hidden relative dark:text-white">
             {/* Greeting Section - Centered */}
             {showGreeting && (
-              <div className="flex-1 flex flex-col items-center justify-center px-8 transition-all duration-500 ease-in-out">
-                {/* Floating AI Orb */}
-                <div className="relative mb-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-pulse dark:text-white">
-                    <Sparkles className="h-10 w-10 text-white" />
-                  </div>
-                  <div className="absolute -inset-4 bg-gradient-to-br from-orange-500/20 to-orange-500/20 rounded-full blur-xl animate-pulse"></div>
-                </div>
-                
-                {/* Animated Greeting Text */}
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
-                >
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 font-inter text-center">
-                    Good Afternoon, {displayName}
-                  </h1>
-                </motion.div>
-                <p className="text-xl text-gray-600 dark:text-gray-200 mb-12 text-center">
-                  What's on <span className="text-orange-600 dark:text-orange-300">your mind?</span>
-                </p>
-
-                {/* Centered Input */}
-                <div className="w-full max-w-2xl mb-8">
-                  <div className="relative">
-                    <Input
-                      placeholder="Ask AI a question or make a request..."
-                      value={currentInput}
-                      onChange={(e) => setCurrentInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      onFocus={() => {
-                        setInputFocused(true);
-                        setShowRightPanel(true);
-                      }}
-                      className="w-full h-14 pl-4 pr-20 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded-2xl text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-300 focus:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    />
-                    <div className="absolute right-3  top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                  
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={!currentInput.trim() || isTyping}
-                        className="h-8 w-8 p-0  hover:bg-gray-800  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Suggested Queries - Centered Grid */}
-                <div className="w-full max-w-4xl">
-                  <div className="text-xs text-gray-500 dark:text-gray-300 text-center mb-4 uppercase tracking-wide">
-                    Get started with an example below
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {suggestedQueries.map((query, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestedQuery(query.text)}
-                        className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all text-left group"
-                      >
-                        <div className="text-2xl mb-2 dark:text-white">{query.icon}</div>
-                        <p className="text-sm text-gray-700 dark:text-white group-hover:text-gray-900 dark:group-hover:text-gray-100">{query.text}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <GreetingSection
+                displayName={displayName}
+                currentInput={currentInput}
+                setCurrentInput={setCurrentInput}
+                onSendMessage={handleSendMessage}
+                isTyping={isTyping}
+                onSuggestedQuery={handleSuggestedQuery}
+                suggestedQueries={suggestedQueries}
+                onInputFocus={() => {
+                  setInputFocused(true);
+                  setShowRightPanel(true);
+                }}
+                showRightPanel={showRightPanel}
+                inputRef={inputRef}
+              />
             )}
 
             {/* Chat Messages */}
             {(hasMessages || (!showGreeting && (inputFocused || currentInput.trim()))) && (
               <>
-                <ScrollArea className="flex-1 p-6">
-                  <div className="max-w-4xl mx-auto space-y-6">
-                    {currentChat?.messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`flex space-x-4 max-w-3xl ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            message.sender === 'user' 
-                              ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-white' 
-                              : 'bg-gradient-to-br text-white'
-                          }`}>
-                            {message.sender === 'user' ? (
-                              <User className="h-4 w-4" />
-                            ) : (
-                              <img src="public\logo.png" alt="Wheely Logo" className="w-6 h-6 rounded-full" />
-                            )}
-                          </div>
-                          
-                          <div className={`rounded-2xl p-4 ${
-                           message.sender === 'user'
-                            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
-                            : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white border border-gray-100 dark:border-gray-700'
-                        }`}>
-                          {message.sender === 'assistant' && message.id === animatingMessageId ?  (
-                            <ReactMarkdown
-                              components={{
-                                p: ({node, ...props}) => <p className="text-sm leading-relaxed" {...props} />,
-                                ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-2" {...props} />,
-                                ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-2" {...props} />,
-                                li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                                strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
-                                em: ({node, ...props}) => <em className="italic" {...props} />,
-                                code: ({node, ...props}) => <code className="bg-gray-100 px-1 rounded" {...props} />,
-                              }}
-                            >
-                              {animatedContent}
-                            </ReactMarkdown>
-                          ) :  message.sender === 'assistant' ?(
-                            <ReactMarkdown
-                            components={{
-                              p: ({node, ...props}) => <p className="text-sm leading-relaxed" {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-2" {...props} />,
-                              li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                              strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
-                              em: ({node, ...props}) => <em className="italic" {...props} />,
-                              code: ({node, ...props}) => <code className="bg-gray-100 px-1 rounded" {...props} />,
-                            }}
-                          >
-                        {message.content}
-                      </ReactMarkdown>
-                    ) : (
-                      <p className="text-sm leading-relaxed dark:text-white">{message.content}</p>
-                    )}
-                        </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {isTyping && (
-                      <div className="flex justify-start">
-                        <div className="flex space-x-4 max-w-3xl">
-                          
-                          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100">
-                            <div className="flex space-x-1">
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} /> 
-                  </div>
-                </ScrollArea>
+                <ChatMessages
+                  messages={currentChat?.messages || []}
+                  isTyping={isTyping}
+                  animatingMessageId={animatingMessageId}
+                  animatedContent={animatedContent}
+                  messagesEndRef={messagesEndRef}
+                />
 
                 {/* Sticky Input at bottom */}
                 <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-900 dark:text-white">
                   <div className="max-w-4xl mx-auto">
-                    <div className="relative">
-                      <Input
-                        placeholder="Ask Wheely a question or make a request..."
-                        value={currentInput}
-                        onChange={(e) => setCurrentInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                        className="w-full h-14 pl-4 pr-20 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded-2xl text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-300 focus:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                      />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                
-                        <Button
-                          onClick={handleSendMessage}
-                          disabled={!currentInput.trim() || isTyping}
-                          className="h-8 w-8 p-0 bg-black hover:bg-gray-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                    <ChatInput
+                      currentInput={currentInput}
+                      setCurrentInput={setCurrentInput}
+                      handleSendMessage={handleSendMessage}
+                      isTyping={isTyping}
+                      inputRef={inputRef}
+                    />
                   </div>
                 </div>
               </>
@@ -589,31 +266,15 @@ const initials = (firstName[0] || "").toUpperCase() + (lastName[0] || "").toUppe
         </div>
 
         {/* Right Sidebar - Suggested Queries */}
-          {showRightPanel && (
-  <div className="w-80 bg-gray-50 dark:bg-gray-900 dark:text-white border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-y-auto p-6">
-    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Frequently Asked Questions</h3>
-
-    <div className="flex-1">
-      <div className="grid grid-cols-1 gap-4">
-        {suggestedQueries.map((query, index) => (
-          <button
-            key={index}
-            onClick={() => handleSuggestedQuery(query.text)}
-            className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all text-left group"
-          >
-            <div className="text-2xl mb-2 dark:text-white">{query.icon}</div>
-            <p className="text-sm text-gray-700 dark:text-white group-hover:text-gray-900 dark:group-hover:text-gray-100">{query.text}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  </div>
-)}
-
-
+        {showRightPanel && (
+          <SuggestedQueriesSidebar
+            suggestedQueries={suggestedQueries}
+            handleSuggestedQuery={handleSuggestedQuery}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default Assistant;
+export default Assistant; 

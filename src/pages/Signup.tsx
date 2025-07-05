@@ -65,8 +65,8 @@ const Signup = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+      <div className="min-h-screen bg-[#fffffe] flex items-center justify-center p-4">
+        <div className="w-full max-w-md ">
           <div className="text-center mb-8">
             <div className="mx-auto mb-4 w-12 h-12  bg-gradient-to-r from-gray-500 to-gray-900 rounded-full flex items-center justify-center shadow-lg">
               <Mail className="h-8 w-8 text-white " />
@@ -75,30 +75,27 @@ const Signup = () => {
             <p className="text-gray-600">We've sent a verification link to your email</p>
           </div>
 
-          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+          <Card className="border-0 shadow-xl bg-[#eff0f3] backdrop-blur-sm">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Verification email sent to:</h3>
-                <p className="text-blue-600 font-medium">{email}</p>
+                <p className="text-blue-900 font-medium">{email}</p>
               </div>
               
               <div className="space-y-4">
-                <p className="text-gray-600 text-sm">
+                <p className="text-[#2a2a2a] text-sm">
                   Click the link in your email to verify your account and complete the signup process.
                 </p>
                 
                 <div className="border-t pt-4">
-                  <p className="text-gray-500 text-xs mb-3">
-                    Didn't receive the email? Check your spam folder or try with a different email address.
-                  </p>
-                  
+                
                   <Button
                     variant="outline"
                     onClick={() => {
                       setEmailSent(false);
                       setEmail("");
                     }}
-                    className="w-full"
+                    className="w-full bg-[#ff8e3c] text-[#fffffe] "
                   >
                     Use Different Email
                   </Button>
@@ -112,7 +109,7 @@ const Signup = () => {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="text-blue-600 font-medium"
+              className="text-[#d9376e] font-medium"
             >
               Sign in
             </button>
@@ -133,15 +130,15 @@ const Signup = () => {
           <p className="text-gray-600">Join the Wheely Assistant</p>
         </div>
 
-        <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <Card className="border-0 shadow-xl bg-[eff0f3] backdrop-blur-sm bg-[#eff0f3]">
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-xl">Email Verification</CardTitle>
-            <CardDescription>Enter your email to get started</CardDescription>
+            <CardTitle className="text-xl text-[#0d0d0d]">Email Verification</CardTitle>
+            <CardDescription className="text-[#2a2a2a]">Enter your email to get started</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleEmailSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="email" className="text-sm font-medium text-[#2a2a2a]">
                   Email Address
                 </Label>
                 <Input
@@ -150,7 +147,7 @@ const Signup = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  className="h-12 border-[#0d0d0d]"
                   disabled={isLoading}
                 />
               </div>
@@ -158,18 +155,18 @@ const Signup = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-gray-500 to-gray-900 hover:from-gray-600 hover:to-gray-900 text-white font-medium rounded-lg shadow-lg"
+                className="w-full h-12 bg-[#ff8e3c] text-[#fffffe] font-medium rounded-lg shadow-lg"
               >
                 {isLoading ? "Sending..." : "Send Verification Link"}
               </Button>
             </form>
             
-            <div className="text-center text-sm text-gray-600 mt-6">
+            <div className="text-center text-sm text-[text-[#2a2a2a]] mt-6">
               Already have an account?{" "}
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="text-gray-600 hover:text-gray-700 font-medium"
+                className="text-[#d9376e] font-medium"
               >
                 Sign in
               </button>

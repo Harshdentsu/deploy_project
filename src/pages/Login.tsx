@@ -63,7 +63,8 @@ const Login = () => {
         if (data.user && data.user.role === formData.role) {
           toast({
             title: "Account Setup Complete!",
-            description: "Welcome to Wheely Assistant"
+            description: "Welcome to Wheely Assistant",
+            duration:2000
           });
           setTimeout(() => {
             navigate('/assistant');
@@ -96,23 +97,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#fffffe] flex items-center justify-center ">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
           <img src="public/logo.png" alt="Wheely Logo" className="h-54 w-54" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <p className="text-[#0d0d0d]">Sign in to your account</p>
         </div>
 
-        <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
-          <CardHeader className="text-center pb-6">
+        <Card className="border-0 shadow-xl bg-[#eff0f3] backdrop-blur-sm">
+          <CardHeader className="text-center ">
             <CardTitle className="text-xl">Sign In</CardTitle>
-            <CardDescription>Enter your credentials to continue</CardDescription>
+            <CardDescription className="text-[#2a2a2a]" >Enter your credentials to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-6">
+            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium text-gray-700">
                   Username
@@ -125,7 +126,7 @@ const Login = () => {
                   value={formData.username}
                   autoComplete="new-username"
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  className="h-12 border-[#0d0d0d] focus:border-purple-500 focus:ring-purple-500 "
                   disabled={isLoading}
                 />
               </div>
@@ -143,7 +144,7 @@ const Login = () => {
                     value={formData.password}
                     autoComplete="new-password"  
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 pr-10"
+                    className="h-12 border-[#0d0d0d]  focus:border-purple-500 focus:ring-purple-500 pr-10"
                     disabled={isLoading}
                   />
                   <Button
@@ -168,7 +169,7 @@ const Login = () => {
                   onValueChange={(value) => setFormData({...formData, role: value})}
                   disabled={isLoading}
                 >
-                  <SelectTrigger className="h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500">
+                  <SelectTrigger className="h-12 border-[#0d0d0d]  focus:border-purple-500 focus:ring-purple-500">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -182,7 +183,7 @@ const Login = () => {
               <div className="flex items-center justify-between text-sm">
                 <button
                   type="button"
-                  className="text-gray-500 hover:text-gray-900 font-medium"
+                  className="text-gray-800 font-medium"
                   disabled={isLoading}
                 >
                   Forgot Password?
@@ -192,7 +193,7 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-gray-500 to-gray-900 hover:from-gray-700 hover:to-gray-1100 text-white font-medium rounded-lg shadow-lg"
+                className="w-full h-12 bg-[#ff8e3c] text-[#fffffe] font-medium rounded-lg shadow-lg"
               >
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
@@ -202,7 +203,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/signup')}
-                  className="text-gray-600 hover:text-gray-900 font-medium"
+                  className="text-[#d9376e] font-medium"
                   disabled={isLoading}
                 >
                   Sign up

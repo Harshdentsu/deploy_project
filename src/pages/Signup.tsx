@@ -65,37 +65,33 @@ const Signup = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-[#fffffe] flex items-center justify-center p-4">
-        <div className="w-full max-w-md ">
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
+        <div className="w-full max-w-xl flex flex-col items-center justify-center">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 w-12 h-12  bg-gradient-to-r from-gray-500 to-gray-900 rounded-full flex items-center justify-center shadow-lg">
-              <Mail className="h-8 w-8 text-white " />
+            <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
+              <Mail className="h-8 w-8 text-orange-500" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Check Your Email</h1>
-            <p className="text-gray-600">We've sent a verification link to your email</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Check Your Email</h1>
+            <p className="text-gray-700 dark:text-gray-300 text-base">We've sent a verification link to your email</p>
           </div>
-
-          <Card className="border-0 shadow-xl bg-[#eff0f3] backdrop-blur-sm">
+          <Card className="border-0 shadow-2xl bg-white/90 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl px-8 py-2 w-full">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Verification email sent to:</h3>
-                <p className="text-blue-900 font-medium">{email}</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Verification email sent to:</h3>
+                <p className="text-blue-900 dark:text-blue-300 font-medium">{email}</p>
               </div>
-              
               <div className="space-y-4">
-                <p className="text-[#2a2a2a] text-sm">
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
                   Click the link in your email to verify your account and complete the signup process.
                 </p>
-                
                 <div className="border-t pt-4">
-                
                   <Button
                     variant="outline"
                     onClick={() => {
                       setEmailSent(false);
                       setEmail("");
                     }}
-                    className="w-full bg-[#ff8e3c] text-[#fffffe] "
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-xl shadow-lg focus:ring-4 focus:ring-orange-300"
                   >
                     Use Different Email
                   </Button>
@@ -103,13 +99,12 @@ const Signup = () => {
               </div>
             </CardContent>
           </Card>
-
-          <div className="text-center text-sm text-gray-600 mt-6">
+          <div className="text-center text-sm text-gray-700 dark:text-gray-300 mt-6">
             Already have an account?{" "}
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="text-[#d9376e] font-medium"
+              className="text-orange-600 dark:text-orange-400 font-medium"
             >
               Sign in
             </button>
@@ -120,25 +115,24 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
+      <div className="w-full max-w-md flex flex-col items-center justify-center">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-          <img src="public/logo.png" alt="Wheely Logo" className="h-54 w-54" />
+          <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
+            <img src="public/logo.png" alt="Wheely Logo" className="h-10 w-10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Join the Wheely Assistant</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Create Account</h1>
+          <p className="text-gray-700 dark:text-gray-300 text-base">Join the Wheely Assistant</p>
         </div>
-
-        <Card className="border-0 shadow-xl bg-[eff0f3] backdrop-blur-sm bg-[#eff0f3]">
+        <Card className="border-0 shadow-2xl bg-white/90 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl px-8 py-2 w-full">
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-xl text-[#0d0d0d]">Email Verification</CardTitle>
-            <CardDescription className="text-[#2a2a2a]">Enter your email to get started</CardDescription>
+            <CardTitle className="text-xl text-gray-900 dark:text-white">Email Verification</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-300">Enter your email to get started</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleEmailSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-[#2a2a2a]">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Email Address
                 </Label>
                 <Input
@@ -147,26 +141,24 @@ const Signup = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 border-[#0d0d0d]"
+                  className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                   disabled={isLoading}
                 />
               </div>
-              
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-[#ff8e3c] text-[#fffffe] font-medium rounded-lg shadow-lg"
+                className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-xl shadow-lg focus:ring-4 focus:ring-orange-300"
               >
                 {isLoading ? "Sending..." : "Send Verification Link"}
               </Button>
             </form>
-            
-            <div className="text-center text-sm text-[text-[#2a2a2a]] mt-6">
+            <div className="text-center text-sm text-gray-700 dark:text-gray-300 mt-6">
               Already have an account?{" "}
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="text-[#d9376e] font-medium"
+                className="text-orange-600 dark:text-orange-400 font-medium"
               >
                 Sign in
               </button>

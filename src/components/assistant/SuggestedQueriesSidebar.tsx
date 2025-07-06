@@ -44,15 +44,10 @@ const SuggestedQueriesSidebar = ({
                 ease: "easeOut",
               }}
               onClick={() => handleSuggestedQuery(query.text)}
-              className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all text-left group"
-              whileHover={{
-                scale: 1.02,
-                transition: { duration: 0.2 },
-              }}
-              whileTap={{ scale: 0.98 }}
+              className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl transition-all text-left group"
             >
               <div className="text-2xl mb-2 dark:text-white">{query.icon}</div>
-              <p className="text-sm text-gray-700 dark:text-white group-hover:text-gray-900 dark:group-hover:text-gray-100">
+              <p className="text-sm text-gray-700 dark:text-white">
                 {query.text}
               </p>
             </motion.button>

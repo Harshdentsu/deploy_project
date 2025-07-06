@@ -25,18 +25,19 @@ const AssistantHeader = ({
 
   return (
     <motion.div
-  className="h-16 bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 relative z-10"
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.2 }}
->
+      className="h-16 bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 relative z-10"
+      style={{ background: undefined }}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.5 }}
+    >
 
       <div className="flex items-center space-x-4">
         <Button 
           variant="ghost" 
           size="sm"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 h-10 w-10 p-0 rounded-lg"
+          className="text-gray-600 h-10 w-10 p-0 rounded-lg"
         >
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
@@ -56,14 +57,14 @@ const AssistantHeader = ({
           size="sm"
           aria-label="Toggle dark mode"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-gray-800 bg-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-gray-800 bg-gray-100"
         >
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-gray-100">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-gray-200 text-gray-700 text-sm font-medium">
                   {initials}
@@ -71,26 +72,26 @@ const AssistantHeader = ({
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white border-gray-200 shadow-lg" align="end">
+          <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg" align="end">
             <div className="px-4 py-3">
               <p className="text-sm font-medium text-gray-900 dark:text-white">{firstName}</p>
               <p className="text-xs text-gray-500 dark:text-gray-300"></p>
               <Badge variant="secondary" className="mt-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 text-xs">
-               Dealer
+                Dealer
               </Badge>
             </div>
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-            <DropdownMenuItem className="text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+            <DropdownMenuItem className="text-gray-700 dark:text-white">
               <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
+            <DropdownMenuItem className="text-gray-700 dark:text-white">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
             <DropdownMenuItem 
-              className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
+              className="text-red-600 dark:text-red-400"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -99,7 +100,7 @@ const AssistantHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      </motion.div>
+    </motion.div>
   );
 };
 

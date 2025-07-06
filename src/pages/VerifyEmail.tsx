@@ -147,7 +147,7 @@ const VerifyEmail = () => {
             <p className="text-gray-600 mb-6">The verification link is invalid or has expired.</p>
             <Button 
               onClick={() => navigate('/signup')}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="bg-gradient-to-r from-purple-500 to-pink-500"
             >
               Try Again
             </Button>
@@ -232,7 +232,7 @@ const VerifyEmail = () => {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium rounded-lg shadow-lg"
+                className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg shadow-lg"
               >
                 Complete Setup
               </Button>

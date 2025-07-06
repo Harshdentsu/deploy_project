@@ -168,25 +168,24 @@ const SetupAccount = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
+      <div className="w-full max-w-md flex flex-col items-center justify-center">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-          <img src="public/logo.png" alt="Wheely Logo" className="h-54 w-54" />
+          <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
+            <img src="public/logo.png" alt="Wheely Logo" className="h-10 w-10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Setup Your Account</h1>
-          <p className="text-gray-600">Complete your profile for {email}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Setup Your Account</h1>
+          <p className="text-gray-700 dark:text-gray-300 text-base">Complete your profile for {email}</p>
         </div>
-
-        <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <Card className="border-0 shadow-2xl bg-white/90 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl px-8 py-2 w-full">
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-xl">Account Information</CardTitle>
-            <CardDescription>Set up your username, password, and role</CardDescription>
+            <CardTitle className="text-xl text-gray-900 dark:text-white">Account Information</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-300">Set up your username, password, and role</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSetupComplete} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="username" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Username
                 </Label>
                 <Input
@@ -195,13 +194,12 @@ const SetupAccount = () => {
                   placeholder="Choose a username"
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="h-12 border-gray-200 "
+                  className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                   disabled={isLoading}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Password
                 </Label>
                 <div className="relative">
@@ -211,7 +209,7 @@ const SetupAccount = () => {
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                    className="h-12 border-gray-200  pr-10"
+                    className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 pr-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                     disabled={isLoading}
                   />
                   <Button
@@ -226,9 +224,8 @@ const SetupAccount = () => {
                   </Button>
                 </div>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="role" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Role
                 </Label>
                 <Select 
@@ -236,21 +233,20 @@ const SetupAccount = () => {
                   onValueChange={(value) => setFormData({...formData, role: value})}
                   disabled={isLoading}
                 >
-                  <SelectTrigger className="h-12 border-gray-200 ">
+                  <SelectTrigger className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700">
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="dealer">Dealer</SelectItem>
                     <SelectItem value="sales_rep">Sales Rep</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
               <Button
                 type="submit"
-                className="w-full h-12  bg-gradient-to-r from-gray-500 to-gray-900 hover:from-gray-700 hover:to-gray-1100 text-white font-medium rounded-lg shadow-lg"
                 disabled={isLoading}
+                className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-xl shadow-lg focus:ring-4 focus:ring-orange-300"
               >
                 {isLoading ? "Setting up..." : "Complete Setup"}
               </Button>

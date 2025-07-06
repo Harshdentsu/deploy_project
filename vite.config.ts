@@ -15,5 +15,11 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    server: {
+      sourcemap: true // ✅ This is important
+    },
+    build: {
+      sourcemap: true // ✅ Also include this
+    }
   },
 }));

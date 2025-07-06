@@ -45,7 +45,7 @@ const ChatInput = ({
         <Button
           onClick={handleSendMessage}
           disabled={!currentInput.trim() || isTyping}
-          className="h-8 w-8 p-0 bg-black hover:bg-gray-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+          className="h-8 w-8 p-0 bg-black text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           <Send className="h-4 w-4" />
         </Button>

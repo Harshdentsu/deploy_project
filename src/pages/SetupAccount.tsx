@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useTheme } from "next-themes";
 
 const SetupAccount = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const SetupAccount = () => {
     password: "",
     role: ""
   });
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -70,6 +72,7 @@ const SetupAccount = () => {
     verifyToken();
   }, [searchParams, navigate, toast]);
   
+  useEffect(() => { setTheme('light'); }, [setTheme]);
 
   const handleSetupComplete = async (e: React.FormEvent) => {
     e.preventDefault();

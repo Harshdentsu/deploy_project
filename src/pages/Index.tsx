@@ -2,9 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageSquare, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { setTheme } = useTheme();
+
+  useEffect(() => { setTheme('light'); }, [setTheme]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center p-0 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 overflow-hidden">
@@ -26,7 +31,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-6 max-w-2xl mx-auto leading-relaxed font-medium"
+            className="text-base sm:text-lg md:text-md text-gray-500 dark:text-gray-200 mb-6 max-w-2xl mx-auto leading-relaxed font-medium"
           >
             An intelligent assistant built to simplify workflows, answer queries, and empower teams
             across sales, service, and inventory in the tyre manufacturing industry.

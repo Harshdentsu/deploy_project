@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useTheme } from "next-themes";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,6 +20,9 @@ const Login = () => {
     password: "",
     role: ""
   });
+  const { setTheme } = useTheme();
+
+  useEffect(() => { setTheme('light'); }, [setTheme]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

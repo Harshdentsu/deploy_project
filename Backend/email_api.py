@@ -124,39 +124,3 @@ def get_user_session_by_username(username):
                 )
     print(f"[ERROR] No user found for username: {username}")
     return None
-
-@router.post("/api/query")
-async def query(request: Request):
-    print("🚀 [DEBUG] /api/query endpoint hit")
-
-    try:
-        data = await request.json()
-        username = data.get("username")
-        user_query = data.get("query")
-
-        print(f"👤 [DEBUG] Incoming query from user: {username}")
-        print(f"💬 [DEBUG] User query: {user_query}")
-
-        print("🔍 [DEBUG] Looking up user session...")
-        user_session = get_user_session_by_username(username)
-
-        if not user_session:
-            print(f"❌ [ERROR] No matching user found for username: {username}")
-            return JSONResponse(status_code=401, content={"success": False, "message": "Unauthorized"})
-
-        print(f"✅ [DEBUG] User session retrieved: {user_session.username}, Role: {user_session.role}, Dealer ID: {user_session.dealer_id}")
-
-        global current_user
-        current_user = user_session
-
-        print("🧠 [DEBUG] Passing query to process_user_query()...")
-        answer = process_user_query(user_query, user_session)
-
-        print("📤 [DEBUG] Answer received from RAG pipeline or order placement logic.")
-        print(f"📝 [DEBUG] Final answer:\n{answer}")
-
-        return {"success": True, "answer": answer}
-
-    except Exception as e:
-        print(f"🔥 [ERROR] Exception occurred in /api/query: {e}")
-        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})

@@ -44,8 +44,8 @@ const AssistantHeader = ({
         
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 text-lg italic font-medium text-gray-900 dark:text-white">
-            <img src="public\logo.png" alt="Wheely Logo" className="w-25 h-8" />
-            <p className="font-bold dark:text-white">Wheely</p>
+            <img src="public\flogo.png" alt="Wheely Logo" className="w-40 h-18" />
+            {/* <p className="font-bold dark:text-white">Wheely</p> */}
           </div>
         </div>
       </div>

@@ -68,12 +68,18 @@ const Assistant = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [currentChat?.messages.length]);
+  }, [currentChat?.messages]);
 
   // Debug effect to monitor currentInput changes
   useEffect(() => {
     console.log('currentInput changed to:', currentInput);
   }, [currentInput]);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [animatingMessageId, animatedContent]);
 
   function animateMarkdownMessage(fullText: string, messageId: string) {
     setAnimatedContent('');

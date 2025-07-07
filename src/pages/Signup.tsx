@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Bot, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useTheme } from "next-themes";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const { setTheme } = useTheme();
+
+  useEffect(() => { setTheme('light'); }, [setTheme]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -18,6 +18,19 @@ interface ChatMessagesProps {
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
+function formatAsBullets(text: string): string {
+  // If already contains Markdown bullets or numbers, return as is
+  if (/^\\s*[-*•0-9.]/m.test(text)) return text;
+
+  // Otherwise, split into sentences and add bullets
+  // (You can use a more robust sentence splitter if needed)
+  const sentences = text.split(/(?<=[.!?])\\s+/);
+  return sentences
+    .filter(Boolean)
+    .map(sentence => `- ${sentence.trim()}`)
+    .join('\n');
+}
+
 const ChatMessages = ({
   messages,
   isTyping,
@@ -125,7 +138,7 @@ const ChatMessages = ({
                       ),
                     }}
                   >
-                    {message.content}
+                    {formatAsBullets(message.content)}
                   </ReactMarkdown>
                 ) : (
                   <p className="text-sm leading-relaxed dark:text-white">

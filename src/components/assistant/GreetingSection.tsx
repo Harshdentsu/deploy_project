@@ -200,7 +200,7 @@ const GreetingSection = ({
 
       {/* Floating AI Orb with enhanced magical effects */}
       <motion.div 
-        className="relative mb-8 sm:mb-10 md:mb-12"
+        className="relative mt-4 mb-6 sm:mt-6 sm:mb-8 md:mt-8 md:mb-10"
         variants={orbVariants}
         initial="hidden"
         animate="visible"
@@ -302,12 +302,12 @@ const GreetingSection = ({
         animate={{ opacity: showGreetingComplete ? 1 : 0, y: showGreetingComplete ? 0 : 30 }}
         transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
       >
-        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? I'm here to help you explore, create, and discover.
+        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? 
       </motion.p>
 
       {/* Enhanced Centered Input with glow effects */}
       <motion.div 
-        className="w-full max-w-sm sm:max-w-lg md:max-w-2xl mb-8 sm:mb-10 md:mb-12 px-4"
+        className="w-full max-w-sm sm:max-w-lg md:max-w-2xl mb-8 sm:mb-10 md:mb-8 px-4"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: showGreetingComplete ? 1 : 0, y: showGreetingComplete ? 0 : 40 }}
         transition={{ duration: 0.8, delay: 1.5, ease: "easeOut" }}
@@ -370,7 +370,7 @@ const GreetingSection = ({
 
       {/* Enhanced Suggested Queries with fluid animations */}
       <motion.div 
-        className="w-full max-w-4xl sm:max-w-5xl md:max-w-6xl px-4"
+        className="w-full max-w-4xl sm:max-w-5xl md:max-w-6xl px-4 mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: showGreetingComplete ? 1 : 0 }}
         transition={{ duration: 0.8, delay: 1.8 }}

@@ -138,7 +138,7 @@ const ChatMessages = ({
                       ),
                     }}
                   >
-                    {formatAsBullets(message.content)}
+                    {(message.content)}
                   </ReactMarkdown>
                 ) : (
                   <p className="text-sm leading-relaxed dark:text-white">

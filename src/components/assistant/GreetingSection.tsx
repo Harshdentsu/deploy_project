@@ -286,13 +286,6 @@ const GreetingSection = ({
       >
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white font-inter text-center min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] lg:min-h-[4rem] flex items-center justify-center px-2">
           {greetingText}
-          <motion.span
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 1.2, repeat: Infinity }}
-            className="ml-1 sm:ml-2 text-orange-500"
-          >
-            |
-          </motion.span>
         </h1>
       </motion.div>
       

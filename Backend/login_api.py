@@ -1,12 +1,19 @@
-from fastapi import FastAPI, Request, APIRouter, HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from supabase_client import supabase  # ✅ import your Supabase client
-from rag import authenticate_user, current_user,get_conversation_context, UserSession, get_llm_sql, clean_sql_output, try_select_sql, sql_result_to_context, rewrite_query_for_rag, preprocess_query, get_embedding, extract_metadata_with_llm, vector_store_similarity_search, vector_rows_to_context, get_llm_final_response, get_user_by_username
-import rag
-
+from supabase_client import supabase
+from rag import (
+    authenticate_user, current_user, get_conversation_context, UserSession, get_llm_sql,
+    clean_sql_output, try_select_sql, sql_result_to_context, rewrite_query_for_rag,
+    preprocess_query, get_embedding, extract_metadata_with_llm,
+    vector_store_similarity_search, vector_rows_to_context, get_llm_final_response,
+    get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order
+)
+ 
+import sys
+ 
 app = FastAPI()
-
+ 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,8 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# this is for dealer role based masking 
+ 
 @app.post("/api/query")
 async def query(request: Request):
     print("🚀 [DEBUG] /api/query endpoint hit")
@@ -23,26 +29,82 @@ async def query(request: Request):
         data = await request.json()
         username = data.get("username")
         user_query = data.get("query")
-
+ 
         print(f"👤 [DEBUG] Incoming query from user: {username}")
         print(f"💬 [DEBUG] User query: {user_query}")
-
+ 
         user_session = get_user_by_username(username)
         print(f"[DEBUG] get_user_by_username result: {user_session}")
         if not user_session:
             print(f"❌ [ERROR] No matching user found for username: {username}")
             return JSONResponse(status_code=401, content={"success": False, "message": f"Unauthorized: No user found for {username}"})
-
+ 
+        # Set current user globally
+        import rag
         rag.current_user = user_session
-
+ 
         if rag.current_user is None:
             print("ERROR: current_user is not set!")
             return ""
-
-        # Now it's safe to call any function that uses current_user
-        context = get_conversation_context()
-
-        # --- Begin RAG query logic (from rag.py main) ---
+ 
+        # Check for intent if user is sales rep
+        if rag.current_user.is_sales_rep():
+            extracted = extract_order_details(user_query)
+            intent = extracted.get("intent", "unknown")
+ 
+            if intent == "order":
+                product_id = extracted.get("product_id")
+                dealer_id = extracted.get("dealer_id")
+                quantity = extracted.get("quantity")
+                warehouse_id = extracted.get("warehouse_id")
+ 
+                if not dealer_id and "dealer_name" in extracted:
+                    dealer_id = resolve_dealer_id(extracted["dealer_name"])
+                if not product_id and "product_name" in extracted:
+                    product_id = resolve_product_id(extracted["product_name"])
+ 
+                if not product_id or not quantity or not dealer_id:
+                    return {"success": False, "answer": "❌ Missing order details. Please specify dealer, product, and quantity."}
+ 
+                response_obj = place_order(dealer_id, product_id, quantity, warehouse_id)
+                print("📦 [DEBUG] place_order() response:", response_obj)
+                sys.stdout.flush()
+ 
+                if response_obj["success"]:
+                    details = response_obj.get("details", {})
+                    if not details:
+                        print("⚠️ [WARNING] No order details returned.")
+                    print("🧾 [ORDER PLACED] Details:")
+                    for key, value in details.items():
+                        print(f"  {key}: {value}")
+                    sys.stdout.flush()
+ 
+                    detail_str = "\n".join([
+                        f"🧾 Order ID: {details.get('order_id')}",
+                        f"👤 Dealer: {details.get('dealer')}",
+                        f"📦 Product: {details.get('product')}",
+                        f"🔢 Quantity: {details.get('quantity')}",
+                        f"🏬 Warehouse: {details.get('warehouse')}",
+                        f"💰 Unit Price: ₹{details.get('unit_price')}",
+                        f"🧮 Total Cost: ₹{details.get('total_cost')}",
+                        f"📉 Remaining Stock: {details.get('remaining_stock')}"
+                    ])
+ 
+                    return {
+                        "success": True,
+                        "answer": f"✅ {response_obj['message']}\n\n{detail_str}",
+                        "details": details
+                    }
+ 
+                else:
+                    return {
+                        "success": False,
+                        "answer": f"❌ {response_obj['message']}"
+                    }
+ 
+            elif intent != "info":
+                return {"success": False, "answer": "❌ Could not understand your intent. Please try rephrasing."}
+ 
         # SQL
         sql = get_llm_sql(user_query)
         sql = clean_sql_output(sql)
@@ -54,7 +116,7 @@ async def query(request: Request):
                 sql_context = sql_result_to_context(sql_result)
                 print("SQL Result:", sql_context)
                 print("=" * 50)
-
+ 
         # RAG
         rewritten_query = rewrite_query_for_rag(user_query)
         query_embedding = get_embedding(preprocess_query(rewritten_query))
@@ -71,61 +133,22 @@ async def query(request: Request):
             print(rag_context)
         else:
             print("RAG Vector Search: No relevant results found.")
-
+ 
         # Final Response
         print("=" * 50)
         print("Final Response Generation")
         print("=" * 50)
-        answer = get_llm_final_response(sql_context, rag_context, user_query)
+        answer = get_llm_final_response(sql_context, rag_context, user_query=user_query)
         print(f"shivam : {answer}")
-        # --- End RAG query logic ---
-
+        sys.stdout.flush()
+ 
         return {"success": True, "answer": answer}
-
+ 
     except Exception as e:
         print(f"🔥 [ERROR] Exception occurred in /api/query: {e}")
+        sys.stdout.flush()
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
-
-@app.post("/api/setup-account")
-async def setup_account(request: Request):
-    data = await request.json()
-    email = data["email"]
-    username = data["username"]
-    password = data["password"]
-    role = data["role"]
-
-    # 1. Fetch the user by email
-    response = supabase.table("users").select("role, is_verified").eq("email", email).single().execute()
-    user = None
-    if hasattr(response, "data"):
-        user = response.data
-    elif isinstance(response, dict):
-        user = response.get("data")
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User with this email does not exist.")
-
-    # 2. Check if the user is verified
-    if not user.get("is_verified", False):
-        raise HTTPException(status_code=403, detail="Email not verified.")
-
-    # 3. Check if the role matches
-    if user["role"].strip().lower() != role.strip().lower():
-        raise HTTPException(status_code=403, detail="Role does not match the assigned role.")
-
-    # 4. If all checks pass, update username and password
-    hashed_password = bcrypt.hash(password)
-    update_response = supabase.table("users").update({
-        "username": username,
-        "password": hashed_password
-    }).eq("email", email).execute()
-
-    # Check for update errors
-    if hasattr(update_response, "error") and update_response.error is not None:
-        raise HTTPException(status_code=400, detail=str(update_response.error))
-
-    return {"success": True}
-
+ 
 @app.post("/api/login")
 async def login(request: Request):
     print("\n✅ /api/login endpoint called")
@@ -135,12 +158,9 @@ async def login(request: Request):
         password = data.get("password")
         print(f"➡ Username: {username}")
         print(f"➡ Password: {password}")
-        # Directly call authenticate_user from rag.py
         user_session = authenticate_user(username, password)
         print(f"[DEBUG] authenticate_user result: {user_session}")
         if user_session:
-            # Optionally print user details for debugging
-            print(f"[DEBUG] Authenticated user: {user_session.username}, Role: {user_session.role}, Dealer ID: {user_session.dealer_id}")
             return {
                 "success": True,
                 "message": "Login successful",
@@ -155,14 +175,13 @@ async def login(request: Request):
                 }
             }
         else:
-            return {
-                "success": False,
-                "message": "Invalid credentials"
-            }
+            return {"success": False, "message": "Invalid credentials"}
     except Exception as e:
         print(f"❌ Error in /api/login: {str(e)}")
+        sys.stdout.flush()
         return JSONResponse(status_code=500, content={
             "success": False,
             "message": "Internal server error",
             "error": str(e)
         })
+ 

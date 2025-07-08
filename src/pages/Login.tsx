@@ -50,6 +50,7 @@ const Login = () => {
         localStorage.setItem("username", data.user.username);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userId", data.user.user_id?.toString() || "");
+        localStorage.setItem("user", JSON.stringify(data.user));
         toast({
           title: "Welcome back!",
           description: "Logging you in..."

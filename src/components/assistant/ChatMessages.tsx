@@ -44,7 +44,7 @@ const ChatMessages = ({
         {messages.map((message, index) => (
           <motion.div
             key={message.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 3, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
             className={`flex ${
@@ -69,7 +69,7 @@ const ChatMessages = ({
                   <User className="h-4 w-4" />
                 ) : (
                   <img
-                    src="/logo.png"
+                    src="/logo_orng.png"
                     alt="Wheely Logo"
                     className="w-6 h-6 rounded-full"
                   />

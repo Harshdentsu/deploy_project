@@ -48,6 +48,8 @@ const Signup = () => {
           title: "Verification Email Sent!",
           description: "Please check your email and click the verification link"
         });
+        // After successful signup and login (if your signup flow logs in the user automatically):
+        localStorage.setItem("user", JSON.stringify(data.user));
       } else {
         toast({
           title: "Error",

@@ -11,6 +11,8 @@ from rag import (
 )
  
 import sys
+import requests
+import json
  
 app = FastAPI()
  
@@ -49,8 +51,11 @@ async def query(request: Request):
  
         # Check for intent if user is sales rep
         if rag.current_user.is_sales_rep():
+            print("DEBUG: User is sales rep")
             extracted = extract_order_details(user_query)
+            print("DEBUG: Extracted order details:", extracted)
             intent = extracted.get("intent", "unknown")
+            print("DEBUG: Intent:", intent)
  
             if intent == "order":
                 product_id = extracted.get("product_id")
@@ -60,11 +65,20 @@ async def query(request: Request):
  
                 if not dealer_id and "dealer_name" in extracted:
                     dealer_id = resolve_dealer_id(extracted["dealer_name"])
+                    print(f"DEBUG: Resolved dealer_id for '{extracted['dealer_name']}': {dealer_id}")
                 if not product_id and "product_name" in extracted:
                     product_id = resolve_product_id(extracted["product_name"])
- 
-                if not product_id or not quantity or not dealer_id:
-                    return {"success": False, "answer": "❌ Missing order details. Please specify dealer, product, and quantity."}
+                    print(f"DEBUG: Resolved product_id for '{extracted['product_name']}': {product_id}")
+
+                missing = []
+                if not product_id:
+                    missing.append("product")
+                if not dealer_id:
+                    missing.append("dealer")
+                if not quantity:
+                    missing.append("quantity")
+                if missing:
+                    return {"success": False, "answer": f"❌ Missing order details: {', '.join(missing)}. Please specify them clearly."}
  
                 response_obj = place_order(dealer_id, product_id, quantity, warehouse_id)
                 print("📦 [DEBUG] place_order() response:", response_obj)

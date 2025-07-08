@@ -64,6 +64,13 @@ const Assistant = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const userJson = localStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : {};
+  console.log(user);
+  const email = user.email || "";
+  const role = user.role || localStorage.getItem("userRole") || "";
+  const username=user.username;
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -164,6 +171,9 @@ const Assistant = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out"
@@ -219,7 +229,9 @@ const Assistant = () => {
             setSidebarOpen={setSidebarOpen}
             handleLogout={handleLogout}
             initials={initials}
-            firstName={firstName}
+            email={email}
+            role={role}
+            username={username}
           />
 
           {/* Chat Content */}

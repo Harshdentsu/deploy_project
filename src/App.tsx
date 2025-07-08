@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Assistant from "./pages/Assistant";
 import NotFound from "./pages/NotFound";
 import SetupAccount from "./pages/SetupAccount";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import GuestRoute from "@/components/GuestRoute";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -20,11 +21,27 @@ const App = () => (
       <Sonner duration={2000}/>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={
+          
+               <Index />
+           
+            } />
+          <Route path="/login" element={
+            <GuestRoute>
+              <Login />
+            </GuestRoute>
+          } />
+          <Route path="/signup" element={
+            <GuestRoute>
+              <Signup />
+            </GuestRoute>
+          } />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/assistant" element={<Assistant />} />
+          <Route path="/assistant" element={
+            <ProtectedRoute>
+              <Assistant />
+            </ProtectedRoute>
+          } />
           <Route path="/setup-account" element={<SetupAccount />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

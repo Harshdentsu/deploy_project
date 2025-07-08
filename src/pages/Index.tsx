@@ -17,7 +17,7 @@ const Index = () => {
         {/* Header Section */}
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-max h-max mt-8 rounded-full flex items-center justify-center shadow bg-white/80 dark:bg-gray-900/80 p-1">
-            <img src="public/flogo.png" alt="Wheely Logo" className="h-12 w-auto" />
+            <img src="public/orange_logo.png" alt="Wheely Logo" className="h-12 w-auto" />
           </div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -31,7 +31,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-md text-gray-500 dark:text-gray-200 mb-6 max-w-2xl mx-auto leading-relaxed font-medium"
+            className="text-base sm:text-md md:text-md text-gray-500 dark:text-gray-200 mb-6 max-w-2xl mx-auto leading-relaxed font-medium"
           >
             An intelligent assistant built to simplify workflows, answer queries, and empower teams
             across sales, service, and inventory in the tyre manufacturing industry.
@@ -87,7 +87,7 @@ const Index = () => {
             </div>
             <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Instant Insights. Always On Time.</h3>
             <p className="text-gray-500 dark:text-gray-300 text-sm font-normal">
-              Get answers in under 2 seconds. Wheely responds fast — boosting your productivity.
+              Get answers quickly. Wheely responds fast — boosting your productivity.
             </p>
           </div>
         </div>

@@ -889,6 +889,9 @@ def get_llm_final_response(sql_context, rag_context, user_query):
     system_prompt = (
         "You are an AI assistant named 'shivam' for the tyre manufacturing company.\n"
         "You answer user questions using both SQL results and RAG-based context.\n"
+        "Give output in structured and presentable format\n"
+        "Add appropriate and many emojis replacing bullet points in response to enhance interactivity.\n"
+        "if user query asks about joke respond with different random jokes related to tyres.\n"       
         "Respond clearly, professionally, and like a helpful human assistant without mentioning from which context.\n"
         "Use Indian currency (₹) when showing prices.\n"
         "if asked similar products , provide 3 relevant similar products from context present in same category.\n"
@@ -1196,8 +1199,11 @@ Examples:
  
     try:
         response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
+        print("DEBUG: LLM API status:", response.status_code)
+        print("DEBUG: LLM API response:", response.text)
         if response.status_code == 200:
             content = response.json()["choices"][0]["message"]["content"]
+            print("DEBUG: LLM extracted content:", content)
             return json.loads(content)
     except Exception as e:
         print(f"Error extracting order details: {e}")
@@ -1240,9 +1246,9 @@ def resolve_product_id(product_name):
         cur = conn.cursor()
         cur.execute("""
             SELECT product_id FROM product
-            WHERE LOWER(product_name) ILIKE %s
+            WHERE REPLACE(LOWER(product_name), ' ', '') ILIKE %s
             LIMIT 1
-        """, (f"%{product_name.lower()}%",))
+        """, (f"%{product_name.lower().replace(' ', '')}%",))
         result = cur.fetchone()
         return result[0] if result else None
     except Exception as e:
@@ -1349,8 +1355,11 @@ def main():
         try:
             # 🛒 Sales Rep: Determine intent
             if current_user.is_sales_rep():
+                print("DEBUG: User is sales rep")
                 extracted = extract_order_details(user_query)
+                print("DEBUG: Extracted order details:", extracted)
                 intent = extracted.get("intent", "unknown")
+                print("DEBUG: Intent:", intent)
  
                 if intent == "order":
                     product_id = extracted.get("product_id")

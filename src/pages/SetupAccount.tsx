@@ -116,49 +116,13 @@ const SetupAccount = () => {
         setIsLoading(false);
         return;
       }
-
-      // 2. Auto-login
-      const loginRes = await fetch('http://localhost:8000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-          role: formData.role
-        }),
+      toast({
+        title: "Account Setup Complete!",
+        description: "Welcome to Wheely Assistant"
       });
-      const loginData = await loginRes.json();
-
-      if (!loginData.success) {
-        toast({
-          title: "Login Failed",
-          description: loginData.message || "Could not log in after setup",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // 3. Check role
-      if (
-        loginData.user &&
-        loginData.user.role &&
-        loginData.user.role.trim().toLowerCase() === formData.role.trim().toLowerCase()
-      ) {
-        toast({
-          title: "Account Setup Complete!",
-          description: "Welcome to Wheely Assistant"
-        });
-        setTimeout(() => {
-          navigate('/assistant');
-        }, 1000);
-      } else {
-        toast({
-          title: "Role Mismatch",
-          description: "Your selected role does not match your assigned role.",
-          variant: "destructive"
-        });
-      }
+      setTimeout(() => {
+        navigate('/assistant');
+      }, 1000);
     } catch (error) {
       toast({
         title: "Setup/Login Failed",

@@ -3,13 +3,14 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 from supabase_client import supabase
-from rag import process_user_query, current_user, UserSession
 import random
 import jwt
 from datetime import datetime, timedelta
 from fastapi import status
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import httpx
+import bcrypt
 
 load_dotenv()
 router = APIRouter()
@@ -109,18 +110,40 @@ async def verify_email(request: Request):
     else:
         return {"success": False, "message": "Failed to verify email"}
 
-def get_user_session_by_username(username):
-    normalized_username = username.strip().lower().replace('.', '')
-    result = supabase.table("users").select("*").execute()
-    if result.data and len(result.data) > 0:
-        for user in result.data:
-            db_username = user["username"].strip().lower().replace('.', '')
-            if db_username == normalized_username:
-                return UserSession(
-                    user_id=user["user_id"],
-                    username=user["username"],
-                    role=user["role"],
-                    dealer_id=user.get("dealer_id"),
-                )
-    print(f"[ERROR] No user found for username: {username}")
-    return None
+@router.post("/api/setup-account")
+async def setup_account(request: Request):
+    data = await request.json()
+    email = data.get("email")
+    username = data.get("username")
+    password = data.get("password")
+    role = data.get("role")
+    if not (email and username and password and role):
+        return {"success": False, "message": "All fields are required"}
+    # Check role in DB
+    user_result = supabase.table("users").select("role").eq("email", email).execute()
+    if not user_result.data or len(user_result.data) == 0:
+        return {"success": False, "message": "User not found"}
+    db_role = user_result.data[0]["role"]
+    if db_role.strip().lower() != role.strip().lower():
+        return {"success": False, "message": "Role mismatch. Please select the correct role assigned to your account."}
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    # Update user in DB (only username and password)
+    result = supabase.table("users").update({
+        "username": username,
+        "password": hashed_password
+    }).eq("email", email).execute()
+    if not result:
+        return {"success": False, "message": "Failed to update user info"}
+    # Proxy login to login_api
+    try:
+        async with httpx.AsyncClient() as client:
+            login_response = await client.post(
+                "http://localhost:8000/api/login",
+                json={"username": username, "password": password}
+            )
+            login_data = login_response.json()
+            return login_data
+    except Exception as e:
+        return {"success": False, "message": f"Auto-login failed: {str(e)}"}
+

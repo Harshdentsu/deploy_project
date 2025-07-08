@@ -42,7 +42,18 @@ const GreetingSection = ({
 
   useEffect(() => {
     if (mounted) {
-      const fullText = `Good Afternoon, ${displayName}`;
+      const hour = new Date().getHours();
+      let timeGreeting = "";
+  
+      if (hour < 12) {
+        timeGreeting = "Good Morning";
+      } else if (hour >= 12 && hour < 18) {
+        timeGreeting = "Good Afternoon";
+      } else {
+        timeGreeting = "Good Evening";
+      }
+  
+      const fullText = `${timeGreeting}, ${displayName}`;
       let currentIndex = 0;
       setGreetingText('');
       
@@ -63,6 +74,7 @@ const GreetingSection = ({
       return () => clearTimeout(typeTimer);
     }
   }, [mounted, displayName]);
+  
 
   // Enhanced animation variants for smooth, fluid transitions
   const queryCardVariants = {
@@ -295,7 +307,7 @@ const GreetingSection = ({
         animate={{ opacity: showGreetingComplete ? 1 : 0, y: showGreetingComplete ? 0 : 30 }}
         transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
       >
-        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? 
+        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? I'm here to help you explore, create, and discover.
       </motion.p>
 
       {/* Enhanced Centered Input with glow effects */}
@@ -391,13 +403,10 @@ const GreetingSection = ({
             >
               {suggestedQueries.map((query, index) => (
                 <div
-                  key={index}
-                  className="group relative p-4 sm:p-5 md:p-6 bg-white dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl sm:rounded-2xl transition-all text-left overflow-hidden"
-                  style={{
-                    transitionDelay: `${2.5 + (index * 0.15)}s`
-                  }}
-                  onClick={() => onSuggestedQuery(query.text)}
-                >
+                key={index}
+                className="group relative p-4 sm:p-5 md:p-6 bg-white dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl sm:rounded-2xl text-left overflow-hidden transition-transform duration-300 ease-in-out"
+                onClick={() => onSuggestedQuery(query.text)}
+              >
                   <div className="text-2xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 relative z-10">
                     {query.icon}
                   </div>

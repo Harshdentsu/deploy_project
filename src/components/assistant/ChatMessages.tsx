@@ -69,7 +69,7 @@ const ChatMessages = ({
                   <User className="h-4 w-4" />
                 ) : (
                   <img
-                    src="/logo_orng.png"
+                    src="public/logo3.png"
                     alt="Wheely Logo"
                     className="w-6 h-6 rounded-full"
                   />

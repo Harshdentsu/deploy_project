@@ -198,10 +198,10 @@ const Assistant = () => {
   };
 
   const suggestedQueries = [
-    { text: "List all claims I've raised along with their statuses", icon: "👤" },
-    { text: "Give me specification about product UrbanBias", icon: "📧" },
-    { text: "What is the available quantity of 100/45R29 73H in Mysore", icon: "📋" },
-    { text: "Show me my sales .", icon: "⚙️" }
+    { text: "List all my claims", icon: "👤" },
+    { text: "Give me specification of UrbanBias", icon: "📧" },
+    { text: "Tell me about dealer ", icon: "📋" },
+    { text: "Tell me salesRep assigned to me .", icon: "⚙️" }
   ];
 
 

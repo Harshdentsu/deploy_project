@@ -37,8 +37,10 @@ def preprocess_order_row(row):
 # === 🤖 Call Azure to get embedding ===
 def get_embedding_with_retry(payload, max_retries=5):
     delay = 3
+    if endpoint is None:
+        raise ValueError("AZURE_EMBEDDING_URL environment variable is not set.")
     for attempt in range(max_retries):
-        response = requests.post(endpoint, headers=headers, json=payload)
+        response = requests.post(str(endpoint), headers=headers, json=payload)
         if response.status_code == 200:
             return response.json()["data"][0]["embedding"]
         elif response.status_code == 429:

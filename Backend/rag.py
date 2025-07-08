@@ -1258,6 +1258,30 @@ def resolve_product_id(product_name):
         cur.close()
         conn.close()
  
+def resolve_warehouse_id(warehouse_name):
+    try:
+        conn = psycopg2.connect(
+            dbname=os.getenv("dbname"),
+            user=os.getenv("user"),
+            password=os.getenv("password"),
+            host=os.getenv("host"),
+            port=os.getenv("port")
+        )
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT warehouse_id FROM warehouse
+            WHERE LOWER(location) ILIKE %s
+            LIMIT 1
+        """, (f"%{warehouse_name.lower()}%",))
+        result = cur.fetchone()
+        return result[0] if result else None
+    except Exception as e:
+        print("DEBUG resolve_warehouse_id error:", e)
+        return None
+    finally:
+        cur.close()
+        conn.close()
+ 
 #####sales goal
 def get_sales_progress(sales_rep_id):
     try:
@@ -1366,15 +1390,19 @@ def main():
                     dealer_id = extracted.get("dealer_id")
                     quantity = extracted.get("quantity")
                     warehouse_id = extracted.get("warehouse_id")
- 
+
                     # If dealer_id missing but dealer_name is present
                     if not dealer_id and "dealer_name" in extracted:
                         dealer_id = resolve_dealer_id(extracted["dealer_name"])
-                    
                     # If product_id missing but product_name is present
                     if not product_id and "product_name" in extracted:
                         product_id = resolve_product_id(extracted["product_name"])
- 
+                    # If warehouse_id is not an actual ID but a location name, resolve it
+                    if warehouse_id and not warehouse_id.startswith("W"):
+                        resolved_warehouse_id = resolve_warehouse_id(warehouse_id)
+                        if resolved_warehouse_id:
+                            warehouse_id = resolved_warehouse_id
+
                     if not product_id or not quantity or not dealer_id:
                         response = "❌ Missing order details. Please specify dealer, product, and quantity."
                     else:

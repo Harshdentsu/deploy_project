@@ -7,9 +7,8 @@ from rag import (
     clean_sql_output, try_select_sql, sql_result_to_context, rewrite_query_for_rag,
     preprocess_query, get_embedding, extract_metadata_with_llm,
     vector_store_similarity_search, vector_rows_to_context, get_llm_final_response,
-    get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order
+    get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order, resolve_warehouse_id
 )
- 
 import sys
 import requests
 import json
@@ -69,6 +68,12 @@ async def query(request: Request):
                 if not product_id and "product_name" in extracted:
                     product_id = resolve_product_id(extracted["product_name"])
                     print(f"DEBUG: Resolved product_id for '{extracted['product_name']}': {product_id}")
+
+                # If warehouse_id is not an actual ID but a location name, resolve it
+                if warehouse_id and not warehouse_id.startswith("W"):
+                    resolved_warehouse_id = resolve_warehouse_id(warehouse_id)
+                    if resolved_warehouse_id:
+                        warehouse_id = resolved_warehouse_id
 
                 missing = []
                 if not product_id:

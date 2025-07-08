@@ -33,6 +33,9 @@ def get_embedding_with_retry(payload, max_retries=5):
         "api-version": os.getenv("AZURE_OPENAI_API_VERSION")
     }
 
+    if endpoint is None:
+        raise ValueError("AZURE_EMBEDDING_URL environment variable is not set.")
+
     for attempt in range(max_retries):
         res = requests.post(endpoint, headers=headers, json=payload)
         if res.status_code == 200:
@@ -111,7 +114,7 @@ async def listen_to_inventory_updates():
         user=os.getenv("SUPABASE_DB_USER"),
         password=os.getenv("SUPABASE_DB_PASSWORD"),
         database=os.getenv("SUPABASE_DB_NAME"),
-        host=os.getenv("SUPABASE_DB_HOST"),
+        host="db.ojbalezgbnwunzzoajum.supabase.co",
         port=int(os.getenv("SUPABASE_DB_PORT", 5432)),
         ssl=ssl_context
     )

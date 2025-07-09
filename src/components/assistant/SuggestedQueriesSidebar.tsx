@@ -31,6 +31,7 @@ const SuggestedQueriesSidebar = ({
       >
         Frequently Asked Questions
       </motion.h3>
+
       {suggestedQueries.map((query, index) => (
         <motion.button
           key={index}
@@ -42,10 +43,12 @@ const SuggestedQueriesSidebar = ({
             ease: "easeOut",
           }}
           onClick={() => handleSuggestedQuery(query.text)}
-          className="w-48 py-3 px-3 bg-white dark:bg-white-800 border border-white-200 dark:border-white-700 rounded-xl shadow hover:shadow-lg focus:ring-2 focus:ring-blue-400 transition-all text-left group flex flex-col items-start"
+          className="w-48 py-3 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow hover:shadow-lg focus:ring-2 focus:ring-blue-400 transition-all text-left group flex flex-col items-start hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          <div className="text-xl mb-2 dark:text-white">{query.icon}</div>
-          <p className="text-sm text-gray-700 dark:text-white font-medium">
+          <div className="text-xl mb-2 text-gray-800 dark:text-white">
+            {query.icon}
+          </div>
+          <p className="text-sm text-gray-700 dark:text-gray-200 font-medium group-hover:text-black dark:group-hover:text-white">
             {query.text}
           </p>
         </motion.button>

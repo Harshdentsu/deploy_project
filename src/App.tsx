@@ -12,6 +12,9 @@ import NotFound from "./pages/NotFound";
 import SetupAccount from "./pages/SetupAccount";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GuestRoute from "@/components/GuestRoute";
+import Analytics from "./pages/Analytics";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,9 +30,9 @@ const App = () => (
            
             } />
           <Route path="/login" element={
-            <GuestRoute>
+           
               <Login />
-            </GuestRoute>
+            
           } />
           <Route path="/signup" element={
             <GuestRoute>
@@ -43,6 +46,13 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/setup-account" element={<SetupAccount />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/forgot-password" element={
+            <ForgotPassword />
+          } />
+          <Route path="/reset-password" element={
+            <ResetPassword />
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

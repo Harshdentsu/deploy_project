@@ -124,8 +124,8 @@ const Signup = () => {
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
       <div className="w-full max-w-md flex flex-col items-center justify-center">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
-            <img src="public/logo.png" alt="Wheely Logo" className="h-10 w-10" />
+          <div className="mx-auto mb-4 w-12 h-12 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
+            <img src="public/logo3.png" alt="Wheely Logo" className="h-15 w-15" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Create Account</h1>
           <p className="text-gray-700 dark:text-gray-300 text-base">Join the Wheely Assistant</p>

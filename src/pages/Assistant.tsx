@@ -29,6 +29,8 @@ const Assistant = () => {
 
   const [animatedContent, setAnimatedContent] = useState('');
   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
+  // --- Add state for selected context ---
+  const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const rawUsername = localStorage.getItem("username") || "User";
   const firstName = rawUsername.split(".")[0];
   const lastName = rawUsername.split(".")[1];
@@ -71,6 +73,31 @@ const Assistant = () => {
   const role = user.role || localStorage.getItem("userRole") || "";
   const username=user.username;
 
+  const roleBasedQueries = {
+    dealer: [
+      { text: "📋 Show me status of my claims" },
+      { text: "📦 Show me SKU Availability" },
+      { text: "🔍 Show me similar products to" },
+      { text: "🧾 Show me orders placed for me" }
+    ],
+    admin: [
+      { text: "List all sales reps", icon: "📋" },
+      { text: "Show dealer performance", icon: "📊" },
+      { text: "Add a new SKU", icon: "➕" }
+    ],
+    sales_rep: [
+   { text: "📦 Show me SKU Availability" },          // Box emoji for stock/products
+   { text: "📊 Show me dealer performance" },        // Bar chart for performance stats
+   { text: "🛒 Place an order" },                    // Shopping cart for ordering
+   { text: "🌍 Show me regional sales" }   
+    ],
+    default: [
+      { text: "Tell me about the product", icon: "📦" }
+    ]
+  };
+
+  const normalizedRole = (role || "").toLowerCase();
+  const suggestedQueries = roleBasedQueries[normalizedRole] || roleBasedQueries.default;
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -108,9 +135,14 @@ const Assistant = () => {
   const handleSendMessage = async () => {
     if (!currentInput.trim()) return;
 
+    // --- Prepend context if present ---
+    const inputWithContext = selectedContext
+      ? `Context: ${selectedContext}\nQuery: ${currentInput}`
+      : currentInput;
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: currentInput,
+      content: inputWithContext,
       sender: 'user',
       timestamp: new Date()
     };
@@ -126,6 +158,8 @@ const Assistant = () => {
     setInputFocused(false);
     setIsTyping(true);
     setShowSuggestedQueries(true);
+    // --- Clear context after sending ---
+    setSelectedContext(null);
 
     try {
       const username = localStorage.getItem("username");
@@ -179,8 +213,7 @@ const Assistant = () => {
       description: "You have been successfully logged out"
     });
     navigate('/login');
-  };
-
+  }; 
   const handleSuggestedQuery = (query: string) => {
     console.log('Suggested query clicked:', query);
     setCurrentInput(query);
@@ -197,21 +230,30 @@ const Assistant = () => {
     console.log('State updated - currentInput should be:', query);
   };
 
-  const suggestedQueries = [
-    { text: "List all my claims", icon: "👤" },
-    { text: "Give me specification of UrbanBias", icon: "📧" },
-    { text: "Tell me about dealer ", icon: "📋" },
-    { text: "Tell me salesRep assigned to me .", icon: "⚙️" }
-  ];
-
-
+  // --- Add handler for context selection ---
+  const handleContextSelect = (context: string) => {
+    setSelectedContext(context);
+    setInputFocused(true);
+    setShowRightPanel(true);
+    // Optionally, focus input
+    setTimeout(() => {
+      if (inputRef.current) inputRef.current.focus();
+    }, 100);
+  };
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 dark:text-white flex overflow-hidden">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 dark:text-white border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden shadow-sm`}>
-        {/* Empty Sidebar - Just keeping the toggle functionality */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center flex-col">
+          {/* Analytics Button */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold mb-4"
+            onClick={() => navigate('/analytics')}
+          >
+            <span role="img" aria-label="Analytics">📊</span> Analytics
+          </button>
+          {/* Empty Sidebar - Just keeping the toggle functionality */}
           <div className="text-center text-gray-500 dark:text-gray-400">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-sm">Sidebar</p>
@@ -264,7 +306,24 @@ const Assistant = () => {
                   animatingMessageId={animatingMessageId}
                   animatedContent={animatedContent}
                   messagesEndRef={messagesEndRef}
+                  // --- Pass context select handler ---
+                  onContextSelect={handleContextSelect}
                 />
+
+                {/* Show selected context above input */}
+                {selectedContext && (
+                  <div className="max-w-4xl mx-auto mb-2">
+                    <div className="bg-orange-100 text-orange-800 px-4 py-2 rounded-lg flex items-center justify-between text-sm">
+                      <span>Context: <span className="font-semibold">{selectedContext}</span></span>
+                      <button
+                        className="ml-4 text-xs text-orange-700 hover:underline"
+                        onClick={() => setSelectedContext(null)}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Sticky Input at bottom */}
                 <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-900 dark:text-white">

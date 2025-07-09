@@ -22,6 +22,8 @@ VERIFICATION_TOKEN_EXPIRY = 30  # minutes
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 FROM_EMAIL = os.getenv("EMAIL_SENDER", "your_verified_sender@example.com")
 
+RESET_TOKEN_EXPIRY = 15  # minutes
+
 def generate_verification_token(email: str):
     payload = {
         "email": email,
@@ -61,6 +63,41 @@ def send_verification_email(email: str, token: str):
         return True
     except Exception as e:
         print("❌ Error sending verification email:", e)
+        return False
+
+# Utility to generate password reset token
+def generate_reset_token(email: str, user_id: str):
+    payload = {
+        "email": email,
+        "sub": user_id,
+        "exp": datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRY)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+# Utility to send password reset email
+def send_password_reset_email(email: str, token: str):
+    try:
+        reset_link = f"http://localhost:8080/reset-password?token={token}"
+       
+        message = Mail(
+            from_email=FROM_EMAIL,
+            to_emails=email,
+            subject="Reset your Wheely Password",
+            html_content=f"""
+                <p>Hi,</p>
+                <p>We received a request to reset your password for <strong>Wheely</strong>.</p>
+                <p>Click the link below to create a new password:</p>
+                <p><a href='{reset_link}'>Reset Now</a></p>
+                <p>If you didn't request this, you can safely ignore it.</p>
+                <p>— The Wheely Team</p>
+            """
+        )
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print("✅ Password reset email sent:", response.status_code)
+        return True
+    except Exception as e:
+        print("❌ Error sending password reset email:", e)
         return False
 
 @router.post("/api/send-verification-link")
@@ -109,6 +146,46 @@ async def verify_email(request: Request):
         return {"success": True, "message": "Email verified", "email": email}
     else:
         return {"success": False, "message": "Failed to verify email"}
+
+@router.post("/auth/request-password-reset")
+async def request_password_reset(request: Request):
+    data = await request.json()
+    email = data.get("email")
+    if not email:
+        return {"success": False, "message": "Email is required"}
+    print(f"📧 [REQUEST-PASSWORD-RESET] Incoming email: {email}")
+    result = supabase.table("users").select("user_id, email").eq("email", email).single().execute()
+    user = getattr(result, "data", None)
+    if user:
+        token = generate_reset_token(user["email"], user["user_id"])
+        send_password_reset_email(user["email"], token)
+    # Always return generic success
+    return {"success": True, "message": "If an account exists, a reset link has been sent."}
+
+@router.post("/auth/reset-password")
+async def reset_password(request: Request):
+    data = await request.json()
+    token = data.get("token")
+    new_password = data.get("new_password")
+    if not token or not new_password:
+        return {"success": False, "message": "Token and new password are required."}
+    # Verify token
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("sub")
+        email = payload.get("email")
+    except jwt.ExpiredSignatureError:
+        return {"success": False, "message": "Reset link expired."}
+    except jwt.InvalidTokenError:
+        return {"success": False, "message": "Invalid or tampered reset link."}
+    # Hash new password
+    hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    # Update password in users table
+    result = supabase.table("users").update({"password": hashed_password}).eq("user_id", user_id).execute()
+    if getattr(result, "data", None) is not None and len(result.data) > 0:
+        return {"success": True, "message": "Your password has been reset successfully!"}
+    else:
+        return {"success": False, "message": "Failed to update password. Please try again."}
 
 @router.post("/api/setup-account")
 async def setup_account(request: Request):

@@ -80,10 +80,11 @@ class UserSession:
         return self.role == 'sales_rep'
     
     def is_admin(self):
-        return self.role in ['admin', 'superuser', 'manager']
+        
+        return self.role == 'admin'
     
-    def can_access_all_data(self):
-        return self.is_admin()
+    # def can_access_all_data(self):
+    #     return self.is_admin()
     
     def get_dealer_filter(self):
         """Returns dealer_id for filtering if user is a dealer"""
@@ -490,7 +491,7 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
     system_prompt = (
         "You are an AI assistant for a tyre manufacturing company. "
         "Your job is to generate efficient SQL SELECT queries from natural language questions without asking follow up questions\n\n"
-        "if asked similar products , provide 3 relevant similar products in same category.\n"
+        "if asked about similar products like of some product , provide 3 relevant similar products in same category of the product mentioned .\n"
         "📦 Tables:\n"
         "1. users(user_id, username, email, role, dealer_id, sales_rep_id)\n"
         "2. dealer(dealer_id, name, zone, sales_rep_id)\n"
@@ -862,7 +863,7 @@ def get_llm_final_response(sql_context, rag_context, user_query):
                 "  'As a dealer, you do not have access to other dealers' data.'\n"
                 "- If a dealer tries accessing restricted information, respond with:\n"
                 "  'You do not have access to this information as a dealer.'\n"
-                "- DO NOT mention data from other dealers even if it appears in the SQL or RAG context.\n"
+                "- DO NOT mention data from other dealers even if it appears in the SQL or RAG context.\n" 
             )
         elif current_user.is_sales_rep():
             user_context += (
@@ -894,7 +895,7 @@ def get_llm_final_response(sql_context, rag_context, user_query):
         "if user query asks about joke respond with different random jokes related to tyres.\n"       
         "Respond clearly, professionally, and like a helpful human assistant without mentioning from which context.\n"
         "Use Indian currency (₹) when showing prices.\n"
-        "if asked similar products , provide 3 relevant similar products from context present in same category.\n"
+        "if asked similar products , provide relevant similar products from context present in same category.\n"
         "\n"
         "❗IMPORTANT RULES:\n"
         "- DO NOT hallucinate or fabricate data.\n"
@@ -909,8 +910,8 @@ def get_llm_final_response(sql_context, rag_context, user_query):
         "- Sales Rep accessing unassigned dealer's info → 'As a sales representative, you can only view information for dealers assigned to you.'\n"
         
         "✅ ALWAYS obey role-based access restrictions strictly.\n"
-        "Give output in structured format highlighting important field\n"
         "Add apropriate emojis with response highlighting important fields.\n "
+        "Summarize the results briefly. Then, if there are columns and values, format them clearly in a Markdown-style table with Field and Value headers. Make sure the rest of the message remains in natural language."
         + user_context
     )
  
@@ -935,7 +936,7 @@ User Query:
     payload = {
         "messages": messages,
         "temperature": 0.0,
-        "max_tokens": 300,
+        "max_tokens": 2000,
         "top_p": 1,
         "frequency_penalty": 0,
         "presence_penalty": 0

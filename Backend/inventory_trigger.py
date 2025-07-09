@@ -114,7 +114,7 @@ async def listen_to_inventory_updates():
         user=os.getenv("SUPABASE_DB_USER"),
         password=os.getenv("SUPABASE_DB_PASSWORD"),
         database=os.getenv("SUPABASE_DB_NAME"),
-        host="db.ojbalezgbnwunzzoajum.supabase.co",
+          host=os.getenv("SUPABASE_DB_HOST"),
         port=int(os.getenv("SUPABASE_DB_PORT", 5432)),
         ssl=ssl_context
     )

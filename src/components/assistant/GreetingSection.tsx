@@ -307,7 +307,7 @@ const GreetingSection = ({
         animate={{ opacity: showGreetingComplete ? 1 : 0, y: showGreetingComplete ? 0 : 30 }}
         transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
       >
-        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? I'm here to help you explore, create, and discover.
+        What's on <span className="text-orange-600 dark:text-orange-400 font-semibold">your mind</span> today? Let’s dive in and find answers together.
       </motion.p>
 
       {/* Enhanced Centered Input with glow effects */}
@@ -347,7 +347,7 @@ const GreetingSection = ({
           
           <Input
             ref={inputRef}
-            placeholder="Ask AI a question or make a request..."
+            placeholder="Wheely's listening... fire away with your query"
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
@@ -373,7 +373,7 @@ const GreetingSection = ({
         </div>
       </motion.div>
 
-      {/* Enhanced Suggested Queries with fluid animations */}
+{/*      
       <motion.div 
         className="w-full max-w-4xl sm:max-w-5xl md:max-w-6xl px-4 mb-6"
         initial={{ opacity: 0 }}
@@ -418,7 +418,7 @@ const GreetingSection = ({
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </motion.div> */}
     </motion.div>
   );
 };

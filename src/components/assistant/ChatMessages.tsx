@@ -16,6 +16,8 @@ interface ChatMessagesProps {
   animatingMessageId: string | null;
   animatedContent: string;
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  // Add onContextSelect prop
+  onContextSelect?: (context: string) => void;
 }
 
 function formatAsBullets(text: string): string {
@@ -37,9 +39,10 @@ const ChatMessages = ({
   animatingMessageId,
   animatedContent,
   messagesEndRef,
+  onContextSelect,
 }: ChatMessagesProps) => {
   return (
-    <ScrollArea className="flex-1 p-6">
+    <ScrollArea className="flex-1 p-6 pr-72">
       <div className="max-w-4xl mx-auto space-y-6">
         {messages.map((message, index) => (
           <motion.div
@@ -106,7 +109,18 @@ const ChatMessages = ({
                         <em className="italic" {...props} />
                       ),
                       code: ({ node, ...props }) => (
-                        <code className="bg-gray-100 px-1 rounded" {...props} />
+                        <code
+                          className="bg-gray-100 px-1 rounded cursor-pointer hover:bg-orange-200 transition"
+                          {...props}
+                          onClick={() =>
+                            onContextSelect && typeof props.children === 'string'
+                              ? onContextSelect(props.children)
+                              : onContextSelect && Array.isArray(props.children)
+                                ? onContextSelect(props.children.join(''))
+                                : undefined
+                          }
+                          title={onContextSelect ? "Click to use as context" : undefined}
+                        />
                       ),
                     }}
                   >
@@ -134,7 +148,18 @@ const ChatMessages = ({
                         <em className="italic" {...props} />
                       ),
                       code: ({ node, ...props }) => (
-                        <code className="bg-gray-100 px-1 rounded" {...props} />
+                        <code
+                          className="bg-gray-100 px-1 rounded cursor-pointer hover:bg-orange-200 transition"
+                          {...props}
+                          onClick={() =>
+                            onContextSelect && typeof props.children === 'string'
+                              ? onContextSelect(props.children)
+                              : onContextSelect && Array.isArray(props.children)
+                                ? onContextSelect(props.children.join(''))
+                                : undefined
+                          }
+                          title={onContextSelect ? "Click to use as context" : undefined}
+                        />
                       ),
                     }}
                   >

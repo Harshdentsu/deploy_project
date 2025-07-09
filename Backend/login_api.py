@@ -177,9 +177,21 @@ async def login(request: Request):
         password = data.get("password")
         print(f"➡ Username: {username}")
         print(f"➡ Password: {password}")
+        
         user_session = authenticate_user(username, password)
         print(f"[DEBUG] authenticate_user result: {user_session}")
+        
         if user_session:
+            # 🔍 Log full session info
+            print("✅ [LOGIN] User session established.")
+            print(f"🧾 [SESSION DETAILS] user_id: {user_session.user_id}")
+            print(f"🧾 [SESSION DETAILS] username: {user_session.username}")
+            print(f"🧾 [SESSION DETAILS] role: {user_session.role}")
+            print(f"🧾 [SESSION DETAILS] dealer_id: {user_session.dealer_id}")
+            print(f"🧾 [SESSION DETAILS] dealer_name: {user_session.dealer_name}")
+            print(f"🧾 [SESSION DETAILS] sales_rep_id: {user_session.sales_rep_id}")
+            print(f"🧾 [SESSION DETAILS] sales_rep_name: {user_session.sales_rep_name}")
+
             return {
                 "success": True,
                 "message": "Login successful",
@@ -194,7 +206,9 @@ async def login(request: Request):
                 }
             }
         else:
+            print("❌ [LOGIN] Invalid credentials. No session returned.")
             return {"success": False, "message": "Invalid credentials"}
+
     except Exception as e:
         print(f"❌ Error in /api/login: {str(e)}")
         sys.stdout.flush()
@@ -203,4 +217,4 @@ async def login(request: Request):
             "message": "Internal server error",
             "error": str(e)
         })
- 
+

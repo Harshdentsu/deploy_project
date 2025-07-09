@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from email_api import router as email_router
 from login_api import app as login_app
+from chart_api import router as chart_router  # ✅ Add this
 from vector_trigger import listen_to_new_orders
 from inventory_trigger import listen_to_inventory_updates
 import asyncio
@@ -17,12 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers from email_api
+# Include routers
 app.include_router(email_router)
+app.include_router(chart_router)  # ✅ Add this
 
-# Mount login_api endpoints under the same app
-# If login_api uses @app directly, we need to convert its endpoints to a router or mount as a sub-app
-# Here, we mount it as a sub-app for /api endpoints
+# Mount login_api endpoints
 app.mount("/", login_app)
 
 @app.on_event("startup")

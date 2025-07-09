@@ -57,15 +57,6 @@ const AssistantHeader = ({
     >
 
       <div className="flex items-center space-x-4">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-gray-600 h-10 w-10 p-0 rounded-lg dark:text-white"
-        >
-          {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
-        
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 text-lg italic font-medium text-gray-900 dark:text-white">
           <img

@@ -911,7 +911,6 @@ def get_llm_final_response(sql_context, rag_context, user_query):
         
         "✅ ALWAYS obey role-based access restrictions strictly.\n"
         "Add apropriate emojis with response highlighting important fields.\n "
-        "Summarize the results briefly. Then, if there are columns and values, format them clearly in a Markdown-style table with Field and Value headers. Make sure the rest of the message remains in natural language."
         + user_context
     )
  

@@ -7,6 +7,7 @@ import ChatInput from "@/components/assistant/ChatInput";
 import ChatMessages from "@/components/assistant/ChatMessages";
 import GreetingSection from "@/components/assistant/GreetingSection";
 import SuggestedQueriesSidebar from "@/components/assistant/SuggestedQueriesSidebar";
+import Sidebar from "@/components/assistant/Sidebar"; // Add your custom image here
 
 interface Message {
   id: string;
@@ -47,11 +48,12 @@ const Assistant = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [showSuggestedQueries, setShowSuggestedQueries] = useState(false);
+  const [showGreetingOnce, setShowGreetingOnce] = useState(true);
   
   const [chats, setChats] = useState<Chat[]>([
     {
       id: "1",
-      title: "New Thread",
+      title: "New chat",
       lastMessage: "",
       timestamp: new Date(),
       messages: []
@@ -61,7 +63,8 @@ const Assistant = () => {
   const currentChat = chats.find(chat => chat.id === currentChatId);
 
   const hasMessages = currentChat?.messages && currentChat.messages.length > 0;
-  const showGreeting = !hasMessages && !inputFocused && !currentInput.trim();
+  // Only show greeting if showGreetingOnce is true and the other greeting conditions are met
+  const showGreeting = showGreetingOnce && !hasMessages && !inputFocused && !currentInput.trim();
   //currently added 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -160,6 +163,7 @@ const Assistant = () => {
     setShowSuggestedQueries(true);
     // --- Clear context after sending ---
     setSelectedContext(null);
+    setShowGreetingOnce(false);
 
     try {
       const username = localStorage.getItem("username");
@@ -243,23 +247,41 @@ const Assistant = () => {
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 dark:text-white flex overflow-hidden">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 dark:text-white border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden shadow-sm`}>
-        <div className="flex-1 flex items-center justify-center flex-col">
-          {/* Analytics Button */}
-          <button
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold mb-4"
-            onClick={() => navigate('/analytics')}
-          >
-            <span role="img" aria-label="Analytics">📊</span> Analytics
-          </button>
-          {/* Empty Sidebar - Just keeping the toggle functionality */}
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm">Sidebar</p>
-          </div>
-        </div>
-      </div>
+      {/* Sidebar: Only show when not greeting */}
+      {!showGreeting && (
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          chats={chats}
+          currentChatId={currentChatId}
+          setCurrentChatId={(id: string) => {
+            setShowGreetingOnce(false);
+            setCurrentChatId(id);
+          }}
+          handleNewChat={() => {
+            setShowGreetingOnce(false);
+            const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
+            setChats(prev => [
+              ...prev,
+              { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
+            ]);
+            setCurrentChatId(newChatId);
+            setInputFocused(true);
+            setShowRightPanel(true);
+            setShowSuggestedQueries(false);
+            setTimeout(() => {
+              if (inputRef.current) inputRef.current.focus();
+            }, 100);
+          }}
+          handleDeleteChat={(chatId) => {
+            setChats(prev => prev.filter(chat => chat.id !== chatId));
+            if (currentChatId === chatId) {
+              setCurrentChatId("1");
+            }
+          }}
+          navigate={navigate}
+        />
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex">

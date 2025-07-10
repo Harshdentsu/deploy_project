@@ -220,19 +220,24 @@ const Assistant = () => {
   }; 
   const handleSuggestedQuery = (query: string) => {
     console.log('Suggested query clicked:', query);
-    setCurrentInput(query);
+  
+    // Strip emoji (anything at the start followed by a space)
+    const cleanedQuery = query.replace(/^[^\w\s]*\s*/, '');
+  
+    setCurrentInput(cleanedQuery); // Use the cleaned query here
     setInputFocused(true);
     setShowRightPanel(true);
-    
-    // Focus the input field after a short delay to ensure state is updated
+  
+    // Focus the input field after a short delay
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
       }
     }, 100);
-    
-    console.log('State updated - currentInput should be:', query);
+  
+    console.log('State updated - currentInput should be:', cleanedQuery);
   };
+  
 
   // --- Add handler for context selection ---
   const handleContextSelect = (context: string) => {

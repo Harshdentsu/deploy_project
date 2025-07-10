@@ -99,26 +99,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {chat.title}
               </span>
               <div className="relative flex items-center" ref={menuRef}>
-                <button
-                  className={`ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition ${sidebarOpen ? '' : 'mx-auto'}`}
-                  onClick={() => setShowMenuId(showMenuId === chat.id ? null : chat.id)}
-                  title="More options"
-                >
-                  <MoreVertical className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                </button>
+              <button
+                className={`ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition ${sidebarOpen ? '' : 'mx-auto'}`}
+                onClick={() => setShowMenuId(showMenuId === chat.id ? null : chat.id)}
+                title="More options"
+              >
+                <MoreVertical className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+              </button>
 
-                {/* Dropdown menu */}
-                {showMenuId === chat.id && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
-                    <button
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-800 hover:text-red-700 rounded-md transition-all"
-                      onClick={() => { handleDeleteChat(chat.id); setShowMenuId(null); }}
-                    >
-                      🗑 Delete
-                    </button>
-                  </div>
-                )}
-              </div>
+              {showMenuId === chat.id && (
+                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-800 hover:text-red-700 rounded-md transition-all"
+                    onClick={() => { handleDeleteChat(chat.id); setShowMenuId(null); }}
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+              )}
+            </div>
             </li>
           ))}
         </ul>

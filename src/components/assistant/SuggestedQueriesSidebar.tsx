@@ -29,7 +29,7 @@ const SuggestedQueriesSidebar = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       >
-        Frequently Asked Questions
+        Suggested Queries
       </motion.h3>
 
       {suggestedQueries.map((query, index) => (

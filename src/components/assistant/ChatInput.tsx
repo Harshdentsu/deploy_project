@@ -83,7 +83,7 @@ const ChatInput = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative w-full">
+      <div className="relative w-100 ">
         <Input
           ref={inputRef}
           type="text"
@@ -92,7 +92,7 @@ const ChatInput = ({
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
           onFocus={onFocus}
-          className="h-14 w-full pl-4 pr-24 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
+          className="h-14 w-full  bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
         />
 
         <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center space-x-2">

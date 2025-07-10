@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SalesTarget from "./SalesTarget";
 import DealerPerformance from "./DealerPerformance";
-import { Line } from "react-chartjs-2";
+import TopSKUs from "./TopSKUs";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,7 +14,7 @@ import {
   Title,
   Filler,
 } from "chart.js";
-import annotationPlugin from "chartjs-plugin-annotation"; // 📌 install this
+import annotationPlugin from "chartjs-plugin-annotation";
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,16 +28,16 @@ ChartJS.register(
   Legend,
   Title,
   Filler,
-  annotationPlugin // ✅ register annotation plugin
+  annotationPlugin
 );
 
 export default function Analytics() {
   const [repData, setRepData] = useState<any>({});
-  const [view, setView] = useState<"sales" | "dealer">("sales");
-  const navigate = useNavigate();
   const [dealerPerformance, setDealerPerformance] = useState<any[]>([]);
   const [loadingDealer, setLoadingDealer] = useState(false);
-
+  const navigate = useNavigate();
+  const [topSKUs, setTopSKUs] = useState<any[]>([]);
+  const [loadingSKUs, setLoadingSKUs] = useState(false);
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const salesrepid = user.sales_rep_id || localStorage.getItem("sales_rep_id");
@@ -45,34 +46,31 @@ export default function Analytics() {
     fetch(`http://localhost:8000/sales-reps?salesrepid=${encodeURIComponent(salesrepid)}`)
       .then(res => res.json())
       .then(data => {
-        if (data.length > 0) {
-          setRepData(data[0]);
-        }
+        if (data.length > 0) setRepData(data[0]);
       })
       .catch(err => console.error(err));
   }, []);
 
   useEffect(() => {
-    if (view !== "dealer") return;
-    setLoadingDealer(true);
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const sales_rep_id = user.sales_rep_id || localStorage.getItem("sales_rep_id");
     if (!sales_rep_id) return;
+
+    setLoadingDealer(true);
     fetch(`http://localhost:8000/dealer-performance?sales_rep_id=${encodeURIComponent(sales_rep_id)}`)
       .then(res => res.json())
       .then(data => {
         setDealerPerformance(data);
         setLoadingDealer(false);
       })
-      .catch(err => {
-        setLoadingDealer(false);
+      .catch(() => {
         setDealerPerformance([]);
+        setLoadingDealer(false);
       });
-  }, [view]);
+  }, []);
 
   const progress = repData.monthly_sales_achieved || 0;
   const target = repData.monthly_sales_target || 100000;
-
   const percentageAchieved = Math.min(100, Number(((progress / target) * 100).toFixed(1)));
 
   const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
@@ -93,11 +91,10 @@ export default function Analytics() {
         backgroundColor: "rgba(34, 197, 94, 0.1)",
         tension: 0.4,
         fill: true,
-        pointRadius: (ctx: any) =>
-          ctx.dataIndex === achievedSteps.length - 1 ? 8 : 4,
+        pointRadius: (ctx: any) => ctx.dataIndex === achievedSteps.length - 1 ? 8 : 4,
         pointBackgroundColor: (ctx: any) =>
           ctx.dataIndex === achievedSteps.length - 1
-            ? "rgba(59, 130, 246, 1)" // Blue dot for "you are here"
+            ? "rgba(59, 130, 246, 1)"
             : "rgba(34, 197, 94, 1)",
       },
       {
@@ -116,10 +113,10 @@ export default function Analytics() {
     responsive: true,
     animation: {
       duration: 1000,
-      easing: 'easeOutQuart' as const,
+      easing: 'easeOutQuart',
     },
     plugins: {
-      legend: { position: 'top' as const },
+      legend: { position: 'top' },
       title: {
         display: true,
         text: `Monthly Sales Progress (Stock-style View)`,
@@ -155,7 +152,7 @@ export default function Analytics() {
     scales: {
       y: {
         beginAtZero: true,
-        max: target + target * 0.1, // Only one tick above target
+        max: target + target * 0.1,
         title: { display: true, text: "Sales (₹)" },
         ticks: {
           callback: function (value: any) {
@@ -170,46 +167,63 @@ export default function Analytics() {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xl font-bold">Sales Rep Analytics</h2>
+    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-900 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Sales Rep Analytics</h1>
         <Button onClick={() => navigate("/assistant")} size="sm">
           ← Back
         </Button>
       </div>
 
-      <div className="flex gap-2 mb-2">
-        <Button
-          variant={view === "sales" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setView("sales")}
-        >
-          Sales Target Progress
-        </Button>
-        <Button
-          variant={view === "dealer" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setView("dealer")}
-        >
-          Dealer Performance
-        </Button>
+      {/* 🔹 Overview KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-1">🎯 Target Achieved</p>
+          <h2 className="text-3xl font-bold text-green-600">{percentageAchieved}%</h2>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-1">📌 Monthly Target</p>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">₹{target.toLocaleString("en-IN")}</h2>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-1">✅ Achieved</p>
+          <h2 className="text-3xl font-bold text-blue-600">₹{progress.toLocaleString("en-IN")}</h2>
+        </div>
       </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        {view === "sales" && (
+
+      {/* 🔹 Chart Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+            📊 Sales Target Progress
+          </h2>
           <SalesTarget
             repData={repData}
             chartData={chartData}
             chartOptions={chartOptions}
             percentageAchieved={percentageAchieved}
           />
-        )}
-        {view === "dealer" && (
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+            🏆 Dealer Performance
+          </h2>
           <DealerPerformance
             dealerPerformance={dealerPerformance}
             loadingDealer={loadingDealer}
           />
-        )}
+        </div>
+      </div>
+
+      {/* 🔹 Top Selling SKUs */}
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+          🛒 Top Selling SKUs
+        </h2>
+        <TopSKUs topSKUs={topSKUs} loading={loadingSKUs} />
       </div>
     </div>
   );
-} 
+}

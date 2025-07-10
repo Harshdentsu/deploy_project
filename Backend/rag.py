@@ -444,7 +444,40 @@ def get_llm_sql(user_query):
     except Exception as e:
         print("DEBUG: Failed to fetch history logs for SQL context:", e)
         history_context = ""
+
+    template_knowledge = """
+You can directly use one of these templates if it matches the intent. Substitute variables if needed:
  
+-- [TEMPLATE_1] Stocks in all warehouses:
+SELECT p.product_id, p.product_name, w.location AS warehouse_location, i.quantity
+FROM inventory i
+JOIN product p ON i.product_id = p.product_id
+JOIN warehouse w ON i.warehouse_id = w.warehouse_id
+ORDER BY p.product_id, w.location;
+ 
+-- [TEMPLATE_2] Similar products to a given product:
+SELECT p2.product_name
+FROM product p1
+JOIN product p2 ON p1.category = p2.category
+WHERE p1.product_name = '{product_name}' AND p2.product_name <> '{product_name}'
+LIMIT 5;
+ 
+-- [TEMPLATE_3] Orders placed for the current dealer:
+SELECT o.dealer_id, o.order_id, o.order_date, o.product_id, p.product_name, o.quantity, o.total_cost
+FROM orders o
+JOIN product p ON o.product_id = p.product_id
+WHERE o.dealer_id = '{dealer_id}'
+ORDER BY o.order_date DESC
+LIMIT 3;
+ 
+-- [TEMPLATE_4] Sales rep assigned to each dealer:
+SELECT s.name AS sales_rep_name
+FROM dealer d
+JOIN sales_reps s ON d.sales_rep_id = s.sales_rep_id;
+ 
+You MUST substitute values like {dealer_id} or {product_name} using context or metadata if available.
+If no template matches, generate SQL normally.
+""" 
     # Inject role-specific access control info
     role_info = ""
     if current_user:
@@ -452,6 +485,7 @@ def get_llm_sql(user_query):
             role_info = f"""
 IMPORTANT ROLE-BASED ACCESS CONTROL:
 - The current user is a DEALER with dealer_id = '{current_user.dealer_id}'
+- The current user is a DEALER with dealer_name = '{current_user.dealer_name}'
 - Dealers can access:
   * All inventory/stock data (no dealer filter needed)
   * ONLY their own claims → Add: AND c.dealer_id = '{current_user.dealer_id}'
@@ -463,6 +497,7 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
             role_info = f"""
 IMPORTANT ROLE-BASED ACCESS CONTROL:
 - The current user is a SALES REPRESENTATIVE with sales_rep_id = '{current_user.sales_rep_id}'
+- The current user is a SALES REPRESENTATIVE with sales_rep_name = '{current_user.sales_rep_name}'
 - Sales reps can access:
   ✅ Inventory and product info (no restriction)
   ✅ ONLY their own orders
@@ -477,7 +512,7 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
   ❌ Claims submitted by unassigned dealers
   ❌ Orders placed by other sales reps
   ❌ Data belonging to other dealers or users
-- When a dealer name is referenced (e.g., 'Harsh Dubey'), match it using: d.name ILIKE '%Harsh Dubey%'
+
 """
  
         elif current_user.is_admin():
@@ -489,9 +524,9 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
  
     # SQL generation prompt
     system_prompt = (
-        "You are an AI assistant for a tyre manufacturing company. "
+
         "Your job is to generate efficient SQL SELECT queries from natural language questions without asking follow up questions\n\n"
-        "if asked about similar products like of some product , provide 3 relevant similar products in same category of the product mentioned .\n"
+        "Consider product names as a single word , eg treat Urban Bias as UrbnaBias , Treat Max ATB as MaxATB\n"
         "📦 Tables:\n"
         "1. users(user_id, username, email, role, dealer_id, sales_rep_id)\n"
         "2. dealer(dealer_id, name, zone, sales_rep_id)\n"
@@ -509,13 +544,12 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
         "- claim.sales_rep_id → sales_reps.sales_rep_id\n"
         "- orders joins dealer, sales_reps, product, warehouse\n"
         "- inventory joins product and warehouse\n\n"
-        + role_info +
-        "\n🛡️ Rules:\n"
-        "1. Use only SELECT queries\n"
+        + role_info + template_knowledge +
+
+
         "2. Use table aliases like o = orders, c = claim, p = product\n"
         "3. Use ILIKE for string filtering and partial matches\n"
-        "4. Include only the columns needed to answer the question\n"
-        "5. Follow access control rules strictly based on user role\n\n"
+        "eg. Similar products like UrbanBias , sql : SELECT p2.product_name FROM product p1 JOIN product p2 ON p1.category = p2.category WHERE p1.product_name = 'UrbanBias' AND p2.product_name <> 'UrbanBias' LIMIT 3;\n"
         "🧠 Recent conversation context:\n" + history_context
     )
  
@@ -857,13 +891,11 @@ def get_llm_final_response(sql_context, rag_context, user_query):
                 "\nACCESS RESTRICTIONS:\n"
                 "- The user is a DEALER.\n"
                 "- Dealers can view product and inventory data.\n"
-                "- Dealers cannot place orders.\n"
-                "- They are only allowed to view claims/orders belonging to their own dealer_id.\n"
-                "- If a dealer asks about another dealer's claims or sales, respond with:\n"
+                "- Dealers cannot place orders ,sales rep places order for dealers , tell them to contact their sales representative with the necessary details.\n"
+                "- They are only allowed to view claims belonging to their own dealer_id.\n"
+                "- If a dealer asks about another dealer's claims, respond with:\n"
                 "  'As a dealer, you do not have access to other dealers' data.'\n"
-                "- If a dealer tries accessing restricted information, respond with:\n"
-                "  'You do not have access to this information as a dealer.'\n"
-                "- DO NOT mention data from other dealers even if it appears in the SQL or RAG context.\n" 
+                
             )
         elif current_user.is_sales_rep():
             user_context += (
@@ -872,58 +904,47 @@ def get_llm_final_response(sql_context, rag_context, user_query):
                 "\nACCESS RESTRICTIONS:\n"
                 "- The user is a SALES REPRESENTATIVE.\n"
                 "- Sales reps can view all product and inventory data.\n"
-                "- They can only view/manage orders that they have placed.\n"
-                " if SQL comes with dealers and their claims , consider it as dealers assigned to the logged in sales representative \n"
+                "- They can only view orders that they have placed.\n"
                 "- They can view claims of dealers assigned to them.\n"
                 "- each of the sales rep is assigned with 4 delaer from sql context.\n"
-                #"- If a sales rep asks about dealers NOT assigned to them, respond with:\n"
-                #"  'As a sales representative, you can only view information for dealers assigned to you.'\n"
+
             )
         elif current_user.is_admin():
             user_context += (
                 "\nACCESS RESTRICTIONS:\n"
                 "- The user is an ADMIN.\n"
                 "- Admins have full access to ALL data.\n"
-                "- Do not apply any restrictions.\n"
+
             )
  
     system_prompt = (
-        "You are an AI assistant named 'shivam' for the tyre manufacturing company.\n"
-        "You answer user questions using both SQL results and RAG-based context.\n"
-        "Give output in structured and presentable format\n"
-        "Add appropriate and many emojis replacing bullet points in response to enhance interactivity.\n"
-        "if user query asks about joke respond with different random jokes related to tyres.\n"       
-        "Respond clearly, professionally, and like a helpful human assistant without mentioning from which context.\n"
+        "You are an AI assistant named 'wheely' for the tyre manufacturing company.\n"
+        "Add many emojis response to enhance interactivity.\n"
+        "if user query asks about joke respond with different random jokes related to tyres.\n"
+        "Respond concisely, professionally, and like a helpful human assistant\n"
+        "Respond without mentioning from which context sql or rag the response is from.\n"
         "Use Indian currency (₹) when showing prices.\n"
-        "if asked similar products , provide relevant similar products from context present in same category.\n"
+        "if asked similar products , provide 3 relevant similar products from context present in same category.\n"
         "\n"
-        "❗IMPORTANT RULES:\n"
-        "- DO NOT hallucinate or fabricate data.\n"
-        "- Consider SQL output as accurate and include RAG context.\n"
-        "If SQL context includes valid results that follow access rules (e.g., claims from dealers assigned to this sales rep), present them politely. Only deny access if SQL context is empty or unauthorized."
- 
-        "- If a user tries to access unauthorized data, respond with the appropriate warning as described below.\n"
-        "\n"
-        "📌 When access is denied:\n"
-        "- Dealer accessing another dealer's info → 'As a dealer, you do not have access to other dealers' data.'\n"
-        "- Dealer accessing restricted info → 'You do not have access to this information as a dealer.'\n"
-        "- Sales Rep accessing unassigned dealer's info → 'As a sales representative, you can only view information for dealers assigned to you.'\n"
-        
-        "✅ ALWAYS obey role-based access restrictions strictly.\n"
-        "Add apropriate emojis with response highlighting important fields.\n "
+        "IMPORTANT RULES:\n"
+        "- DO NOT hallucinate or fabricate data , if incomplete query say i dont understand you. \n"
+        "- Consider complete and always include SQL output in response and include RAG context.\n"
+        "- If a user tries to access unauthorized data, respond with the appropriate warning.\n"
+        "ALWAYS obey role-based access restrictions strictly.\n"
+        "- Always trust content from sections with higher score values.\n"
         + user_context
     )
  
     user_message = f"""
 {history_context}
  
-SQL Context:
+<<SQL_CONTEXT - Score:10>>
 {sql_context}
  
-RAG Context:
+<<RAG_CONTEXT - Score: 0.5>>
 {rag_context}
  
-User Query:
+<<USER_QUERY>>
 {enhanced_query}
 """
  

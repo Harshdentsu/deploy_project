@@ -347,7 +347,7 @@ const GreetingSection = ({
           
           <Input
             ref={inputRef}
-            placeholder="Wheely's listening... fire away with your query"
+            placeholder="Ask Wheely a Question"
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}

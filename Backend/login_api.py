@@ -131,10 +131,17 @@ async def query(request: Request):
         sql_context = "No results found."
         if sql.strip().upper() != "NO_SQL" and sql.strip().lower().startswith("select"):
             sql_result, sql_error = try_select_sql(sql)
-            if sql_result:
-                sql_context = sql_result_to_context(sql_result)
-                print("SQL Result:", sql_context)
-                print("=" * 50)
+            if sql_result is not None:
+                if len(sql_result) > 0:
+                    sql_context = sql_result_to_context(sql_result)
+                    print("SQL Result:", sql_context)
+                    print("=" * 50)
+                else:
+                    rag_enabled = True
+            else:
+                rag_enabled = True
+        else:
+            rag_enabled = True
  
         # RAG
         rewritten_query = rewrite_query_for_rag(user_query)

@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound";
 import SetupAccount from "./pages/SetupAccount";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GuestRoute from "@/components/GuestRoute";
-import Analytics from "./pages/Analytics";
+import Analytics from "./pages/analytics/Analytics";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 const queryClient = new QueryClient();

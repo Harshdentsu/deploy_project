@@ -199,7 +199,7 @@ def get_conversation_context(num_exchanges=5):
             .limit(num_exchanges) \
             .execute()
  
-        rows = result.data if hasattr(result, 'data') else result.get('data', [])
+        rows = result.data if hasattr(result, 'data') else []
         if not rows:
             return ""
  
@@ -233,7 +233,7 @@ def enhance_query_with_context(user_query):
             .limit(1) \
             .execute()
  
-        rows = result.data if hasattr(result, 'data') else result.get('data', [])
+        rows = result.data if hasattr(result, 'data') else []
         if not rows:
             return user_query
  
@@ -437,7 +437,7 @@ def get_llm_sql(user_query):
             .limit(3) \
             .execute()
  
-        rows = result.data if hasattr(result, 'data') else result.get('data', [])
+        rows = result.data if hasattr(result, 'data') else []
         history_context = ""
         for i, row in enumerate(reversed(rows), 1):
             history_context += f"\nExchange {i}:\nUser: {row['user_query']}\nAssistant: {row['ai_response']}\n"
@@ -595,6 +595,10 @@ def try_select_sql(sql):
         )
         cur = conn.cursor()
         cur.execute(sql)
+        if cur.description is None:
+            cur.close()
+            conn.close()
+            return None, "Only SELECT statements are allowed for safety."
         columns = [desc[0] for desc in cur.description]
         rows = cur.fetchall()
         result = [dict(zip(columns, row)) for row in rows]
@@ -676,6 +680,8 @@ def preprocess_query(query):
     return text
  
 def get_embedding(text):
+    if embedding_endpoint is None:
+        raise Exception("Embedding endpoint is not set (AZURE_OPENAI_URL missing)")
     payload = {"input": text}
     response = requests.post(embedding_endpoint, headers=embedding_headers, json=payload)
     if response.status_code == 200:
@@ -1039,7 +1045,11 @@ def place_order(dealer_id, product_id, quantity, warehouse_id=None):
  
         # 5. Insert order into orders table
         cur.execute("SELECT COUNT(*) FROM orders")
-        row_count = cur.fetchone()[0]
+        row_count_result = cur.fetchone()
+        if row_count_result is None:
+            row_count = 0
+        else:
+            row_count = row_count_result[0]
         next_order_number = row_count + 1
         order_id = f"ORD{next_order_number:04d}"  # ORD0001, ORD0002, etc.
  
@@ -1361,24 +1371,25 @@ def main():
     print("Initializing entity cache...")
     get_database_entities()
  
-    print(f"\nWelcome, {current_user.username}!")
-    if current_user.is_dealer():
-        print("🏪 Dealer Access: Sales/Claims limited to your dealership")
-    elif current_user.is_sales_rep():
-        print("🏪 Sales Rep Access: Sales/Claims limited to your dealership")
-        
-        progress_data = get_sales_progress(current_user.sales_rep_id)
-        if progress_data:
-            progress = progress_data["progress"]
-            filled = int(progress // 5)
-            bar = "[" + "#" * filled + "-" * (20 - filled) + "]"
-            print(f"\n📊 Monthly Sales Progress:")
-            print(f"{bar} {progress:.1f}%")
-            print(f"Target: ₹{progress_data['target']:.2f}, Achieved: ₹{progress_data['achieved']:.2f}")
- 
-    elif current_user.is_admin():
-        print("🔑 Admin Access: Full data access")
- 
+    if current_user is not None:
+        print(f"\nWelcome, {current_user.username}!")
+        if current_user.is_dealer():
+            print("\ud83c\udfea Dealer Access: Sales/Claims limited to your dealership")
+        elif current_user.is_sales_rep():
+            print("\ud83c\udfea Sales Rep Access: Sales/Claims limited to your dealership")
+            progress_data = get_sales_progress(current_user.sales_rep_id)
+            if progress_data:
+                progress = progress_data["progress"]
+                filled = int(progress // 5)
+                bar = "[" + "#" * filled + "-" * (20 - filled) + "]"
+                print(f"\n\ud83d\udcca Monthly Sales Progress:")
+                print(f"{bar} {progress:.1f}%")
+                print(f"Target: \u20b9{progress_data['target']:.2f}, Achieved: \u20b9{progress_data['achieved']:.2f}")
+        elif current_user.is_admin():
+            print("\ud83d\udd11 Admin Access: Full data access")
+    else:
+        print("No user is currently logged in.")
+
     print("\nCommands:")
     print("- Type your query to search")
     print("- Type 'logout' to switch users")
@@ -1386,7 +1397,10 @@ def main():
     print("-" * 60)
  
     while True:
-        user_query = input(f"{current_user.username} > ").strip()
+        if current_user is not None:
+            user_query = input(f"{current_user.username} > ").strip()
+        else:
+            user_query = input("> ").strip()
  
         if user_query.lower() == "exit":
             break
@@ -1399,7 +1413,7 @@ def main():
  
         try:
             # 🛒 Sales Rep: Determine intent
-            if current_user.is_sales_rep():
+            if current_user is not None and current_user.is_sales_rep():
                 print("DEBUG: User is sales rep")
                 extracted = extract_order_details(user_query)
                 print("DEBUG: Extracted order details:", extracted)
@@ -1446,7 +1460,7 @@ def main():
                     continue
  
             # 🧠 SQL + RAG for Dealer, Admin, or Sales Rep with info intent
-            if current_user.is_dealer() or current_user.is_admin() or current_user.is_sales_rep():
+            if current_user is not None and (current_user.is_dealer() or current_user.is_admin() or current_user.is_sales_rep()):
                 # SQL
                 sql = get_llm_sql(user_query)
                 sql = clean_sql_output(sql)

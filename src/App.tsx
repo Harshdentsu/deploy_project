@@ -12,9 +12,12 @@ import NotFound from "./pages/NotFound";
 import SetupAccount from "./pages/SetupAccount";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GuestRoute from "@/components/GuestRoute";
-import Analytics from "./pages/analytics/Analytics";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ChatAssistant from "./pages/ChatAssistant";
+import "leaflet/dist/leaflet.css";
+import SalesRep_Analytics from "./pages/analytics/salesRep/SalesRep_Analytics";
+import { Dealer_Analytics } from "./pages/analytics/dealer/Dealer_Analytics";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -46,7 +49,16 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/setup-account" element={<SetupAccount />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              {(() => {
+                const user = JSON.parse(localStorage.getItem("user") || "{}");
+                if (user.role === "dealer") return <Dealer_Analytics />;
+                if (user.role === "sales_rep") return <SalesRep_Analytics />;
+                return <NotFound />;
+              })()}
+            </ProtectedRoute>
+          } />
           <Route path="/forgot-password" element={
             <ForgotPassword />
           } />
@@ -54,6 +66,7 @@ const App = () => (
             <ResetPassword />
           } />
           <Route path="*" element={<NotFound />} />
+          <Route path="/chat-assistant" element={< ChatAssistant/>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

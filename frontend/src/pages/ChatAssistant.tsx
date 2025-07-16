@@ -164,6 +164,9 @@ const ChatAssistant = () => {
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
+        // Move cursor to the end
+        const length = cleanedQuery.length;
+        inputRef.current.setSelectionRange(length, length);
       }
     }, 100);
   };

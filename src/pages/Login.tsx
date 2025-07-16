@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
@@ -56,7 +57,7 @@ const Login = () => {
         toast({
           title: "Account Setup Complete!",
           description: "Welcome to Wheely Assistant",
-          duration:2000
+          duration: 2000
         });
         setTimeout(() => {
           console.log("✅ Navigating to /assistant...");
@@ -82,12 +83,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
-      <div className="w-full max-w-md flex flex-col items-center justify-center">
+    <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-0 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      <div className="w-full max-w-sm sm:max-w-md flex flex-col items-center justify-center py-8">
+
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 w-12 h-12  rounded-full flex items-center justify-center shadow-lg">
-            <img src="public/logo3.png" alt="Wheely Logo" className="h-12 w-12" />
+          <div className="mx-auto mb-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+            <img src="public/logo3.png" alt="Wheely Logo" className="h-full w-auto object-contain" />
           </div>
+
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h1>
           <p className="text-gray-700 dark:text-gray-300 text-base">Sign in to your account</p>
         </div>
@@ -110,7 +113,7 @@ const Login = () => {
                   placeholder="Enter your username"
                   value={formData.username}
                   autoComplete="new-username"
-                  onChange={(e) => setFormData({...formData, username: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                   disabled={isLoading}
                 />
@@ -127,8 +130,8 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={formData.password}
-                    autoComplete="new-password"  
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    autoComplete="new-password"
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="h-12 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500 pr-10 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                     disabled={isLoading}
                   />
@@ -162,6 +165,7 @@ const Login = () => {
                 className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-xl shadow-lg focus:ring-4 focus:ring-orange-300"
               >
                 {isLoading ? "Signing In..." : "Sign In"}
+                <ArrowRight className="ml-2 h-5 w-5 transform transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
 
               <div className="text-center text-sm ">

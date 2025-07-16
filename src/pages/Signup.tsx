@@ -21,7 +21,7 @@ const Signup = () => {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast({
         title: "Email Required",
@@ -125,7 +125,12 @@ const Signup = () => {
       <div className="w-full max-w-md flex flex-col items-center justify-center">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-12 h-12 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
-            <img src="public/logo3.png" alt="Wheely Logo" className="h-15 w-15" />
+            <img
+              src="/logo3.png"
+              alt="Wheely Logo"
+              className="h-12 w-12 sm:h-14 sm:w-14 object-contain"
+            />
+
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Create Account</h1>
           <p className="text-gray-700 dark:text-gray-300 text-base">Join the Wheely Assistant</p>

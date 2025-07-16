@@ -8,27 +8,26 @@ from supabase import create_client
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
 from fuzzywuzzy import fuzz, process
+from dotenv import load_dotenv
 from passlib.hash import bcrypt
 from datetime import datetime
 from collections import deque
 import requests
 import json
 import uuid
- 
-# --- Set your database credentials here or in a .env file ---
-os.environ["user"] = "postgres.ojbalezgbnwunzzoajum"
-os.environ["password"] = "wheelychatbot"
-os.environ["host"] = "aws-0-ap-south-1.pooler.supabase.com"
-os.environ["port"] = "5432"
-os.environ["dbname"] = "postgres"
- 
 load_dotenv()
+# --- Set your database credentials here or in a .env file ---
+# os.environ["user"] =  os.getenv("user")
+# os.environ["password"] = os.getenv("password")
+# os.environ["host"] = os.getenv("host")
+# os.environ["port"] = os.getenv("port")
+# os.environ["dbname"] = os.getenv("dbname")
  
 # --- Azure OpenAI Embedding Endpoint and Headers ---
-embedding_endpoint = os.getenv("AZURE_OPENAI_URL")
+embedding_endpoint = os.getenv("AZURE_EMBEDDING_URL")
 embedding_headers = {
     "Content-Type": "application/json",
-    "Ocp-Apim-Subscription-Key": os.getenv("AZURE_OPENAI_SUBSCRIPTION_KEY"),
+    "Ocp-Apim-Subscription-Key": os.getenv("AZURE_EMBEDDING_SUBSCRIPTION_KEY"),
     "x-service-line": os.getenv("AZURE_OPENAI_SERVICE_LINE"),
     "x-brand": os.getenv("AZURE_OPENAI_BRAND"),
     "x-project": os.getenv("AZURE_OPENAI_PROJECT"),
@@ -36,24 +35,23 @@ embedding_headers = {
 }
  
 # --- Supabase Client (for vector search) ---
-supabase_url = "https://ojbalezgbnwunzzoajum.supabase.co"
-supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qYmFsZXpnYm53dW56em9hanVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0OTk0MzMsImV4cCI6MjA2NTA3NTQzM30.20UaD3p7f1PHDCUhyEO4n3orWGqB-ku7pzBQLESXh4E"
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
+
+if not supabase_url or not supabase_key:
+    raise ValueError("SUPABASE_URL and SUPABASE_KEY environment variables must be set and non-empty.")
+
 supabase = create_client(supabase_url, supabase_key)
- 
+
 # --- Azure OpenAI Chat Endpoint and Headers ---
-chat_endpoint = "https://ai-api-dev.dentsu.com/openai/deployments/GPT35Turbo/chat/completions?api-version=2024-10-21"
+chat_endpoint = os.getenv("AZURE_CHAT_API_URL")
 chat_headers  = {
-    "x-service-line": "functions",
-    "x-brand": "dentsu",
-    "x-project": "aiassistant",
-    "api-version": "v15",
-    "Ocp-Apim-Subscription-Key": "3c6489668e324e6e8123e94f41456484"
+    "x-service-line": os.getenv("AZURE_OPENAI_SERVICE_LINE"),
+    "x-brand": os.getenv("AZURE_OPENAI_BRAND"),
+    "x-project": os.getenv("AZURE_OPENAI_PROJECT"),
+    "api-version": os.getenv("AZURE_OPENAI_API_VERSION"),
+    "Ocp-Apim-Subscription-Key": os.getenv("AZURE_CHAT_SUBSCRIPTION_KEY")
 }
-
-
-
-
-
 
 
 ########################################################################
@@ -566,12 +564,14 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
         "frequency_penalty": 0,
         "presence_penalty": 0
     }
- 
+
+    if not isinstance(chat_endpoint, str):
+        raise ValueError("Chat endpoint URL is not set or is invalid.")
+
     response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
     if response.status_code == 200:
         sql = response.json()["choices"][0]["message"]["content"].strip()
         return sql
-    else:
         raise Exception(f"Chat API error (SQL): {response.status_code}: {response.text}")
 
 
@@ -659,6 +659,8 @@ def rewrite_query_for_rag(user_query):
     }
     
     try:
+        if chat_endpoint is None:
+            raise Exception("Chat endpoint is not set (AZURE_OPENAI_URL missing)")
         response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
         if response.status_code == 200:
             rewritten_query = response.json()["choices"][0]["message"]["content"].strip()
@@ -750,11 +752,20 @@ def extract_metadata_with_llm(user_query):
         "frequency_penalty": 0,
         "presence_penalty": 0
     }
- 
-    response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
+
+    if not chat_endpoint:
+        print("[ERROR] extract_metadata_with_llm: chat_endpoint is None!")
+        return None
+
+    try:
+        response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
+    except Exception as e:
+        print(f"[ERROR] extract_metadata_with_llm: Exception during POST request: {e}")
+        return None
+
     if response.status_code == 200:
-        content = response.json()["choices"][0]["message"]["content"]
         try:
+            content = response.json()["choices"][0]["message"]["content"]
             metadata = json.loads(content)
             if isinstance(metadata, dict):
                 return metadata
@@ -926,17 +937,18 @@ def get_llm_final_response(sql_context, rag_context, user_query):
     system_prompt = (
         "You are an AI assistant named 'wheely' for the tyre manufacturing company.\n"
         "Add many emojis response to enhance interactivity.\n"
-        "if user query asks about joke respond with different random jokes related to tyres.\n"
-        "Respond concisely, professionally, and like a helpful human assistant\n"
+        "If user query asks about joke respond with different random jokes related to tyres.\n"
+        "Respond concisely, professionally, and like a helpful human assistant.\n"
         "Respond without mentioning from which context sql or rag the response is from.\n"
         "Use Indian currency (₹) when showing prices.\n"
-        "if asked similar products , provide 3 relevant similar products from context present in same category.\n"
+        "If asked similar products, provide 3 relevant similar products from context present in same category.\n"
         "\n"
         "IMPORTANT RULES:\n"
-        "- DO NOT hallucinate or fabricate data , if incomplete query say i dont understand you. \n"
-        "- Consider complete and always include SQL output in response and include RAG context.\n"
+        "- ALWAYS use the SQL and RAG context provided to answer the user's query, even if the query is vague.\n"
+        "- If the query is unclear, try to answer as best as possible using the provided context.\n"
+        "- Only say 'I don't understand' if there is truly no relevant context or the query is completely unanswerable.\n"
         "- If a user tries to access unauthorized data, respond with the appropriate warning.\n"
-        "ALWAYS obey role-based access restrictions strictly.\n"
+        "- ALWAYS obey role-based access restrictions strictly.\n"
         "- Always trust content from sections with higher score values.\n"
         + user_context
     )
@@ -967,9 +979,13 @@ def get_llm_final_response(sql_context, rag_context, user_query):
         "frequency_penalty": 0,
         "presence_penalty": 0
     }
- 
+
+    if chat_endpoint is None:
+        print("DEBUG: Chat API endpoint is not set.")
+        return "Sorry, I can't assist with that."
+
     try:
-        response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
+        response = requests.post(str(chat_endpoint), headers=chat_headers, json=payload)
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
     except Exception as e:
@@ -1227,9 +1243,11 @@ Examples:
         "max_tokens": 200,
         "top_p": 1
     }
- 
+
     try:
-        response = requests.post(chat_endpoint, headers=chat_headers, json=payload)
+        if chat_endpoint is None:
+            raise ValueError("chat_endpoint is not set")
+        response = requests.post(str(chat_endpoint), headers=chat_headers, json=payload)
         print("DEBUG: LLM API status:", response.status_code)
         print("DEBUG: LLM API response:", response.text)
         if response.status_code == 200:

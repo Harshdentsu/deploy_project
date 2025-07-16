@@ -45,7 +45,7 @@ const ChatMessages = ({
   };
 
   return (
-    <ScrollArea className="flex-1 p-6 pr-72">
+    <ScrollArea className="flex-1 px-3 py-4 sm:px-4 md:px-6 md:pr-72">
       <div className="max-w-4xl mx-auto space-y-6">
         {messages.map((message, index) => (
           <motion.div
@@ -53,25 +53,22 @@ const ChatMessages = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
-            className={`flex ${
-              message.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"} px-2 sm:px-0`}
             onMouseUp={() => handleMouseUp(message)}
           >
+
             <div
-              className={`flex space-x-4 max-w-3xl ${
-                message.sender === "user"
+              className={`flex space-x-4 max-w-3xl ${message.sender === "user"
                   ? "flex-row-reverse space-x-reverse"
                   : ""
-              }`}
+                }`}
             >
               {/* Avatar */}
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.sender === "user"
+                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === "user"
                     ? "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-white"
                     : "bg-gradient-to-br text-white"
-                }`}
+                  }`}
               >
                 {message.sender === "user" ? (
                   <User className="h-4 w-4" />
@@ -86,11 +83,10 @@ const ChatMessages = ({
 
               {/* Message bubble */}
               <div
-                className={`rounded-2xl p-4 ${
-                  message.sender === "user"
+                className={`rounded-2xl p-4 ${message.sender === "user"
                     ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
                     : "bg-white text-gray-900 dark:bg-gray-800 dark:text-white border border-gray-100 dark:border-gray-700"
-                }`}
+                  }`}
               >
                 <ReactMarkdown
                   components={{
@@ -130,7 +126,7 @@ const ChatMessages = ({
                   }}
                 >
                   {message.sender === "assistant" &&
-                  message.id === animatingMessageId
+                    message.id === animatingMessageId
                     ? animatedContent
                     : message.content}
                 </ReactMarkdown>

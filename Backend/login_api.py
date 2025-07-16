@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from supabase_client import supabase
+import requests
 from rag import (
     authenticate_user, current_user, get_conversation_context, UserSession, get_llm_sql,
     clean_sql_output, try_select_sql, sql_result_to_context, rewrite_query_for_rag,
@@ -10,11 +11,8 @@ from rag import (
     get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order, resolve_warehouse_id
 )
 import sys
-import requests
-import json
- 
+
 app = FastAPI()
- 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -47,21 +45,61 @@ async def query(request: Request):
         if rag.current_user is None:
             print("ERROR: current_user is not set!")
             return ""
- 
-        # Check for intent if user is sales rep
+
+        # Check for confirmation if a pending order exists
+        if 'pending_orders' not in globals():
+            pending_orders = {}
+
+        # 1. Check for confirmation/cancellation if a pending order exists AND the current query is a confirmation/cancel
+        confirmation_phrases = ["yes", "confirm", "place order", "yep", "sure", "okay", "ok"]
+        negative_phrases = ["no", "cancel", "don't", "do not", "nah"]
+
+        if username in pending_orders and any(phrase in user_query.lower() for phrase in confirmation_phrases + negative_phrases):
+            if any(phrase in user_query.lower() for phrase in confirmation_phrases):
+                order = pending_orders.pop(username)
+                response_obj = place_order(
+                    order["dealer_id"], order["product_id"], order["quantity"], order.get("warehouse_id")
+                )
+                if response_obj["success"]:
+                    details = response_obj.get("details", {})
+                    detail_str = "\n".join([
+                        f"🧾 Order ID: {details.get('order_id')}",
+                        f"👤 Dealer: {details.get('dealer')}",
+                        f"📦 Product: {details.get('product')}",
+                        f"🔢 Quantity: {details.get('quantity')}",
+                        f"🏬 Warehouse: {details.get('warehouse')}",
+                        f"💰 Unit Price: ₹{details.get('unit_price')}",
+                        f"🧮 Total Cost: ₹{details.get('total_cost')}",
+                        f"📉 Remaining Stock: {details.get('remaining_stock')}"
+                    ])
+                    return {
+                        "success": True,
+                        "answer": f"✅ Order placed successfully!\n\n{detail_str}",
+                        "details": details
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "answer": f"❌ {response_obj['message']}"
+                    }
+            elif any(phrase in user_query.lower() for phrase in negative_phrases):
+                pending_orders.pop(username)
+                return {"success": True, "answer": "❌ Order cancelled."}
+
+        # 2. Check for intent if user is sales rep
         if rag.current_user.is_sales_rep():
             print("DEBUG: User is sales rep")
             extracted = extract_order_details(user_query)
             print("DEBUG: Extracted order details:", extracted)
             intent = extracted.get("intent", "unknown")
             print("DEBUG: Intent:", intent)
- 
+
             if intent == "order":
                 product_id = extracted.get("product_id")
                 dealer_id = extracted.get("dealer_id")
                 quantity = extracted.get("quantity")
                 warehouse_id = extracted.get("warehouse_id")
- 
+
                 if not dealer_id and "dealer_name" in extracted:
                     dealer_id = resolve_dealer_id(extracted["dealer_name"])
                     print(f"DEBUG: Resolved dealer_id for '{extracted['dealer_name']}': {dealer_id}")
@@ -75,55 +113,24 @@ async def query(request: Request):
                     if resolved_warehouse_id:
                         warehouse_id = resolved_warehouse_id
 
-                missing = []
-                if not product_id:
-                    missing.append("product")
-                if not dealer_id:
-                    missing.append("dealer")
-                if not quantity:
-                    missing.append("quantity")
-                if missing:
-                    return {"success": False, "answer": f"❌ Missing order details: {', '.join(missing)}. Please specify them clearly."}
- 
-                response_obj = place_order(dealer_id, product_id, quantity, warehouse_id)
-                print("📦 [DEBUG] place_order() response:", response_obj)
-                sys.stdout.flush()
- 
-                if response_obj["success"]:
-                    details = response_obj.get("details", {})
-                    if not details:
-                        print("⚠️ [WARNING] No order details returned.")
-                    print("🧾 [ORDER PLACED] Details:")
-                    for key, value in details.items():
-                        print(f"  {key}: {value}")
-                    sys.stdout.flush()
- 
-                    detail_str = "\n".join([
-                        f"🧾 Order ID: {details.get('order_id')}",
-                        f"👤 Dealer: {details.get('dealer')}",
-                        f"📦 Product: {details.get('product')}",
-                        f"🔢 Quantity: {details.get('quantity')}",
-                        f"🏬 Warehouse: {details.get('warehouse')}",
-                        f"💰 Unit Price: ₹{details.get('unit_price')}",
-                        f"🧮 Total Cost: ₹{details.get('total_cost')}",
-                        f"📉 Remaining Stock: {details.get('remaining_stock')}"
-                    ])
- 
-                    return {
-                        "success": True,
-                        "answer": f"✅ {response_obj['message']}\n\n{detail_str}",
-                        "details": details
-                    }
- 
-                else:
-                    return {
-                        "success": False,
-                        "answer": f"❌ {response_obj['message']}"
-                    }
- 
+                if not product_id or not quantity or not dealer_id:
+                    return {"success": False, "answer": "❌ Missing order details. Please specify dealer, product, and quantity."}
+                # Store/replace pending order for confirmation
+                pending_orders[username] = {
+                    "dealer_id": dealer_id,
+                    "product_id": product_id,
+                    "quantity": quantity,
+                    "warehouse_id": warehouse_id
+                }
+                order_summary = f"Dealer: {dealer_id}, Product: {product_id}, Quantity: {quantity}"
+                return {
+                    "success": True,
+                    "answer": f"📝 Please confirm: Do you want to place this order?\n{order_summary}\nReply 'yes' to confirm or 'no' to cancel."
+                }
+
             elif intent != "info":
                 return {"success": False, "answer": "❌ Could not understand your intent. Please try rephrasing."}
- 
+
         # SQL
         sql = get_llm_sql(user_query)
         sql = clean_sql_output(sql)
@@ -163,6 +170,7 @@ async def query(request: Request):
  
         return {"success": True, "answer": answer}
  
+    
     except Exception as e:
         print(f"🔥 [ERROR] Exception occurred in /api/query: {e}")
         sys.stdout.flush()

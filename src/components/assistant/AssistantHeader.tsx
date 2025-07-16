@@ -6,7 +6,8 @@ import { Menu, X, User, Settings, LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";  //animation
-import { supabase } from "@/lib/supabaseClient"; 
+import { supabase } from "@/lib/supabaseClient";
+
 
 interface AssistantHeaderProps {
   sidebarOpen: boolean;
@@ -18,11 +19,11 @@ interface AssistantHeaderProps {
   role: string;
 }
 
-const AssistantHeader = ({ 
-  sidebarOpen, 
-  setSidebarOpen, 
-  handleLogout, 
-  initials, 
+const AssistantHeader = ({
+  sidebarOpen,
+  setSidebarOpen,
+  handleLogout,
+  initials,
   email: initialEmail,
   role,
   username
@@ -58,18 +59,25 @@ const AssistantHeader = ({
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-3">
+          {/* Hamburger menu button - only visible on mobile */}
+          <button
+            className="md:hidden text-gray-700 dark:text-white mr-3"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
           <div className="flex items-center space-x-2 text-lg italic font-medium text-gray-900 dark:text-white">
-          <img
+            <img
               src={theme === "dark" ? "public/wheely_white.png" : "public/orange_logo.png"}
               alt="Wheely Logo"
               className="w-40 h-18"
-/>
+            />
 
             {/* <p className="font-bold dark:text-white">Wheely</p> */}
           </div>
         </div>
       </div>
-      
+
       <div className="flex items-center space-x-4">
         {/* Dark Mode Toggle Button */}
         <Button
@@ -81,20 +89,19 @@ const AssistantHeader = ({
         >
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-              <AvatarFallback
-                  className={`text-sm font-medium ${
-                    theme === "dark"
+                <AvatarFallback
+                  className={`text-sm font-medium ${theme === "dark"
                       ? "bg-gray-700 text-white"
                       : "bg-gray-200 text-gray-700"
-                  }`}
+                    }`}
                 >
-           {initials}
-      </AvatarFallback>
+                  {initials}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -115,7 +122,7 @@ const AssistantHeader = ({
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="text-red-600 dark:text-red-400"
               onClick={handleLogout}
             >

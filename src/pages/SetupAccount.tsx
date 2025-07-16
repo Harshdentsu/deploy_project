@@ -136,7 +136,7 @@ const SetupAccount = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-0">
-      <div className="w-full max-w-md flex flex-col items-center justify-center">
+      <div className="w-full max-w-md flex flex-col items-center justify-center px-4 sm:px-0">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
             <img src="public/logo.png" alt="Wheely Logo" className="h-10 w-10" />

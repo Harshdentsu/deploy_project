@@ -18,6 +18,7 @@ import ChatAssistant from "./pages/ChatAssistant";
 import "leaflet/dist/leaflet.css";
 import SalesRep_Analytics from "./pages/analytics/salesRep/SalesRep_Analytics";
 import { Dealer_Analytics } from "./pages/analytics/dealer/Dealer_Analytics";
+import Admin_Analytics from "./pages/analytics/admin/Admin_Analytics";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -55,6 +56,7 @@ const App = () => (
                 const user = JSON.parse(localStorage.getItem("user") || "{}");
                 if (user.role === "dealer") return <Dealer_Analytics />;
                 if (user.role === "sales_rep") return <SalesRep_Analytics />;
+                if (user.role === "admin") return <Admin_Analytics />;
                 return <NotFound />;
               })()}
             </ProtectedRoute>

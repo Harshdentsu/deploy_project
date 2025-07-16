@@ -1,2 +1,16 @@
-node_modules
+s
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
 .env
+
+# Node
+node_modules/
+dist/
+build/
+
+# OS files
+.DS_Store

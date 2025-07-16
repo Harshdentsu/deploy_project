@@ -12,6 +12,8 @@ from rag import (
 )
 import sys
 
+pending_orders = {}
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -23,6 +25,7 @@ app.add_middleware(
  
 @app.post("/api/query")
 async def query(request: Request):
+    global pending_orders
     print("🚀 [DEBUG] /api/query endpoint hit")
     try:
         data = await request.json()
@@ -47,9 +50,6 @@ async def query(request: Request):
             return ""
 
         # Check for confirmation if a pending order exists
-        if 'pending_orders' not in globals():
-            pending_orders = {}
-
         # 1. Check for confirmation/cancellation if a pending order exists AND the current query is a confirmation/cancel
         confirmation_phrases = ["yes", "confirm", "place order", "yep", "sure", "okay", "ok"]
         negative_phrases = ["no", "cancel", "don't", "do not", "nah"]
@@ -125,7 +125,7 @@ async def query(request: Request):
                 order_summary = f"Dealer: {dealer_id}, Product: {product_id}, Quantity: {quantity}"
                 return {
                     "success": True,
-                    "answer": f"📝 Please confirm: Do you want to place this order?\n{order_summary}\nReply 'yes' to confirm or 'no' to cancel."
+                    "answer": f"📝 Please confirm before placing the order:\n{order_summary}"
                 }
 
             elif intent != "info":

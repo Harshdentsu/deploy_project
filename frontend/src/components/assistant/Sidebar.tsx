@@ -63,14 +63,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* New Chat & Analytics */}
       <div className="flex flex-col gap-2 mt-2 px-2">
+        {/* New Chat */}
         <button
           className={`flex items-center gap-2 px-3 py-2 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm transition-all duration-200 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
           onClick={handleNewChat}
           title="New Chat"
         >
-          <SquarePen className="h-5 w-5 opacity-80" />
+          <img
+            src="public/new_chat.png"
+            alt="New Chat"
+            className="h-5 w-5 opacity-80"
+          />
           {sidebarOpen && <span className="text-sm font-medium">New Chat</span>}
         </button>
+
 
         <button
           className={`flex items-center gap-2 px-3 py-2 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm transition-all duration-200 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
@@ -84,7 +90,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Conversations List */}
       <div className={`mt-6 flex-1 flex flex-col overflow-y-auto ${sidebarOpen ? '' : 'items-center'}`}>
-        {sidebarOpen && <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Chats</h3>}
+        {sidebarOpen && (
+          <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">
+            Chats
+          </h3>
+        )}
         <ul className="flex-1 w-full">
           {chats.map(chat => (
             <li
@@ -98,30 +108,38 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 {chat.title}
               </span>
-              <div className="relative flex items-center" ref={menuRef}>
-              <button
-                className={`ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition ${sidebarOpen ? '' : 'mx-auto'}`}
-                onClick={() => setShowMenuId(showMenuId === chat.id ? null : chat.id)}
-                title="More options"
-              >
-                <MoreVertical className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-              </button>
 
-              {showMenuId === chat.id && (
-                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
+              {/* Only show menu if sidebar is open */}
+              {sidebarOpen && (
+                <div className="relative flex items-center" ref={menuRef}>
                   <button
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-800 hover:text-red-700 rounded-md transition-all"
-                    onClick={() => { handleDeleteChat(chat.id); setShowMenuId(null); }}
+                    className="ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                    onClick={() => setShowMenuId(showMenuId === chat.id ? null : chat.id)}
+                    title="More options"
                   >
-                    🗑 Delete
+                    <MoreVertical className="h-4 w-4 text-gray-500 hover:text-gray-700" />
                   </button>
+
+                  {showMenuId === chat.id && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-800 hover:text-red-700 rounded-md transition-all"
+                        onClick={() => {
+                          handleDeleteChat(chat.id);
+                          setShowMenuId(null);
+                        }}
+                      >
+                        🗑 Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
             </li>
           ))}
         </ul>
       </div>
+
     </div>
   );
 };

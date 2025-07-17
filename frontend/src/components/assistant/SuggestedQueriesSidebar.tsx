@@ -43,15 +43,34 @@ const SuggestedQueriesSidebar = ({
             ease: "easeOut",
           }}
           onClick={() => handleSuggestedQuery(query.text)}
-          className="w-48 py-3 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow hover:shadow-lg focus:ring-2 focus:ring-blue-400 transition-all text-left group flex flex-col items-start hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          <div className="text-xl mb-2 text-gray-800 dark:text-white">
-            {query.icon}
-          </div>
-          <p className="text-sm text-gray-700 dark:text-gray-200 font-medium group-hover:text-black dark:group-hover:text-white">
-            {query.text}
-          </p>
+          <div className="text-2xl text-orange-600 dark:text-orange-300"></div>
+          <motion.button
+            key={index}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.4 + index * 0.1,
+              ease: "easeOut",
+            }}
+            onClick={() => handleSuggestedQuery(query.text)}
+            className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-orange-900"
+          >
+            {/* Only show icon if it exists */}
+            {query.icon && (
+              <div className="text-2xl text-orange-600 dark:text-orange-300">
+                {query.icon}
+              </div>
+            )}
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-200 leading-tight text-center">
+              {query.text}
+            </p>
+          </motion.button>
+
         </motion.button>
+
+
       ))}
     </motion.div>
   );

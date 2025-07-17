@@ -13,7 +13,6 @@ interface AssistantHeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   handleLogout: () => void;
-  initials: string;
   email: string;
   username: string; // ✅ add this
   role: string;
@@ -23,7 +22,6 @@ const AssistantHeader = ({
   sidebarOpen,
   setSidebarOpen,
   handleLogout,
-  initials,
   email: initialEmail,
   role,
   username
@@ -47,6 +45,16 @@ const AssistantHeader = ({
       fetchEmail();
     }
   }, [username, initialEmail]);
+
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    // Split on space, dot, underscore, or hyphen
+    const parts = name.trim().split(/[\s._-]+/);
+    return parts.length === 1
+      ? parts[0][0].toUpperCase()
+      : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
 
   return (
     <motion.div
@@ -85,7 +93,7 @@ const AssistantHeader = ({
           size="sm"
           aria-label="Toggle dark mode"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-gray-800 bg-gray-100"
+          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-orange-800 bg-orange-100"
         >
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
@@ -95,13 +103,12 @@ const AssistantHeader = ({
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
                 <AvatarFallback
-                  className={`text-sm font-medium ${theme === "dark"
-                      ? "bg-gray-700 text-white"
-                      : "bg-gray-200 text-gray-700"
+                  className={`text-sm font-medium ${theme === "dark" ? "bg-orange-700 text-white" : "bg-orange-400 text-white"
                     }`}
                 >
-                  {initials}
+                  {getInitials(username)}
                 </AvatarFallback>
+
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

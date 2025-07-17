@@ -1,5 +1,4 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
@@ -59,19 +58,23 @@ const ChatMessages = ({
 
             <div
               className={`flex space-x-4 max-w-3xl ${message.sender === "user"
-                  ? "flex-row-reverse space-x-reverse"
-                  : ""
+                ? "flex-row-reverse space-x-reverse"
+                : ""
                 }`}
             >
               {/* Avatar */}
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.sender === "user"
-                    ? "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-white"
-                    : "bg-gradient-to-br text-white"
+                  ? "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-white"
+                  : "bg-gradient-to-br text-white"
                   }`}
               >
                 {message.sender === "user" ? (
-                  <User className="h-4 w-4" />
+                  <img
+                    src="public/people.png"
+                    alt="User Profile"
+                    className="w-6 h-6 rounded-full"
+                  />
                 ) : (
                   <img
                     src="/logo3.png"
@@ -79,13 +82,14 @@ const ChatMessages = ({
                     className="w-6 h-6 rounded-full"
                   />
                 )}
+
               </div>
 
               {/* Message bubble */}
               <div
                 className={`rounded-2xl p-4 ${message.sender === "user"
-                    ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
-                    : "bg-white text-gray-900 dark:bg-gray-800 dark:text-white border border-gray-100 dark:border-gray-700"
+                  ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                  : "bg-white text-gray-900 dark:bg-gray-800 dark:text-white border border-gray-100 dark:border-gray-700"
                   }`}
               >
                 <ReactMarkdown

@@ -48,28 +48,28 @@ const ChatAssistant = () => {
   const user = userJson ? JSON.parse(userJson) : {};
   const email = user.email || "";
   const role = user.role || localStorage.getItem("userRole") || "";
-  const username = user.username;
+  const username = user.username || localStorage.getItem("username") || "";
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // --- Role-based suggested queries logic (moved from Assistant.tsx) ---
   const roleBasedQueries = {
     dealer: [
-      { text: "📋 Show me status of my claims" },
-      { text: "📦 Show me SKU Availability" },
-      { text: "🔍 Show me similar products to" },
-      { text: "🧾 Show me orders placed for me" }
+      { text: "Show me status of my claims" },
+      { text: "Show me SKU Availability" },
+      { text: "Show me similar products to" },
+      { text: "Show me orders placed for me" }
     ],
     admin: [
-      { text: "List all sales reps", icon: "📋" },
-      { text: "Show dealer performance", icon: "📊" },
-      { text: "Add a new SKU", icon: "➕" }
+      { text: "List all sales reps" },
+      { text: "Show dealer performance" },
+      { text: "Add a new SKU" }
     ],
     sales_rep: [
-      { text: "📦 Show me SKU Availability" },
-      { text: "📊 Show me dealer performance" },
-      { text: "🛒 Place an order" },
-      { text: "🌍 Show me regional sales" }
+      { text: " Show me SKU Availability" },
+      { text: "Show me dealer performance" },
+      { text: " Place an order" },
+      { text: " Show me regional sales" }
     ],
     default: [
       { text: "Tell me about the product", icon: "📦" }
@@ -122,11 +122,11 @@ const ChatAssistant = () => {
       setChats(prev => prev.map(chat =>
         chat.id === currentChatId
           ? {
-              ...chat,
-              messages: [...chat.messages, assistantMessage],
-              lastMessage: assistantMessage.content.substring(0, 50) + "...",
-              title: userMessage.content.substring(0, 30) + "..."
-            }
+            ...chat,
+            messages: [...chat.messages, assistantMessage],
+            lastMessage: assistantMessage.content.substring(0, 50) + "...",
+            title: userMessage.content.substring(0, 30) + "..."
+          }
           : chat
       ));
     } catch (error) {
@@ -181,7 +181,7 @@ const ChatAssistant = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-900 dark:text-white flex overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-orange-500 via-orange-300 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white flex overflow-hidden">
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
@@ -218,7 +218,6 @@ const ChatAssistant = () => {
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
             handleLogout={handleLogout}
-            initials={user.username ? user.username[0].toUpperCase() : "U"}
             email={user.email}
             role={role}
             username={username}
@@ -245,8 +244,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-900 dark:text-white">
-              <div className="max-w-4xl mx-auto">
+            <div className="w-full px-4 sm:px-8 mb-8">
+              <div className="w-full max-w-2xl mx-auto">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}

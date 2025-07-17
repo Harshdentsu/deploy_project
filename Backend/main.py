@@ -30,8 +30,8 @@ app.include_router(dealer_analytics_router)  # ✅ Add dealer analytics
 # Mount login_api endpoints
 app.mount("/", login_app)
 
-# @app.on_event("startup")
-# async def start_background_listeners():
-#     asyncio.create_task(listen_to_new_orders())
-#     asyncio.create_task(listen_to_inventory_updates())
+@app.on_event("startup")
+async def start_background_listeners():
+    asyncio.create_task(listen_to_new_orders())
+    asyncio.create_task(listen_to_inventory_updates())
 

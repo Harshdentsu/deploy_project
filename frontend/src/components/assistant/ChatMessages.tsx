@@ -71,7 +71,7 @@ const ChatMessages = ({
               >
                 {message.sender === "user" ? (
                   <img
-                    src="public/people.png"
+                    src="/people.png"
                     alt="User Profile"
                     className="w-6 h-6 rounded-full"
                   />

@@ -88,7 +88,7 @@ const Login = () => {
 
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
-            <img src="public/logo3.png" alt="Wheely Logo" className="h-full w-auto object-contain" />
+            <img src="/logo3.png" alt="Wheely Logo" className="h-full w-auto object-contain" />
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h1>

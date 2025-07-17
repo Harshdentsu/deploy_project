@@ -37,7 +37,7 @@ const Index = () => {
     <>
       <div className="absolute top-4 left-4 z-50">
         <img
-          src="public/orange_logo.png"
+          src="/orange_logo.png"
           alt="Wheely Logo"
           className="h-8 sm:h-8 md:h-12 lg:h-12 w-auto object-contain"
         />

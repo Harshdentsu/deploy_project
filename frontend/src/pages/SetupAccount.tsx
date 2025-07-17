@@ -139,7 +139,7 @@ const SetupAccount = () => {
       <div className="w-full max-w-md flex flex-col items-center justify-center px-4 sm:px-0">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-16 h-16 bg-white/80 dark:bg-gray-900/80 rounded-full flex items-center justify-center shadow-lg">
-            <img src="public/logo.png" alt="Wheely Logo" className="h-10 w-10" />
+            <img src="/logo.png" alt="Wheely Logo" className="h-10 w-10" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Setup Your Account</h1>
           <p className="text-gray-700 dark:text-gray-300 text-base">Complete your profile for {email}</p>

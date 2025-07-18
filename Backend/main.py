@@ -13,11 +13,12 @@ app = FastAPI()
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://thankful-cliff-024e50a10.1.azurestaticapps.net/"],
+    allow_origins=["https://thankful-cliff-024e50a10.1.azurestaticapps.net"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Include all routers
 app.include_router(email_router)

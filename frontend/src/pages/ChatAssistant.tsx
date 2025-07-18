@@ -48,7 +48,7 @@ const ChatAssistant = () => {
       try {
         const parsed = JSON.parse(savedChats);
         if (Array.isArray(parsed)) setChats(parsed);
-      } catch {}
+      } catch { }
     }
   }, []);
 
@@ -315,8 +315,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-            <div className="w-full px-2 sm:px-4 md:px-8 mb-4">
-              <div className="w-full max-w-full md:max-w-2xl mx-auto">
+            <div className="w-full pl-1 pr-2 sm:pl-4 sm:pr-10 md:pl-6 md:pr-16 mb-4">
+              <div className="w-full max-w-3xl mx-auto ml-4 mr-3">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}
@@ -326,6 +326,7 @@ const ChatAssistant = () => {
                 />
               </div>
             </div>
+
           </div>
         </div>
 

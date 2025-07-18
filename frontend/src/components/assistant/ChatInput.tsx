@@ -92,7 +92,7 @@ const ChatInput = ({
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
           onFocus={onFocus}
-          className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
+          className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
         />
 
         <Button

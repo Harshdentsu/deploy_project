@@ -1,8 +1,6 @@
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from supabase_client import supabase
-import requests
 from rag import (
     authenticate_user, current_user, get_conversation_context, UserSession, get_llm_sql,
     clean_sql_output, try_select_sql, sql_result_to_context, rewrite_query_for_rag,
@@ -11,14 +9,11 @@ from rag import (
     get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order, resolve_warehouse_id
 )
 import sys
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
 
-app = FastAPI()
+router = APIRouter()
 pending_orders = {}
- 
 
-@app.post("/api/query")
+@router.post("/api/query")
 async def query(request: Request):
     global pending_orders
     print("🚀 [DEBUG] /api/query endpoint hit")
@@ -26,26 +21,23 @@ async def query(request: Request):
         data = await request.json()
         username = data.get("username")
         user_query = data.get("query")
- 
+
         print(f"👤 [DEBUG] Incoming query from user: {username}")
         print(f"💬 [DEBUG] User query: {user_query}")
- 
+
         user_session = get_user_by_username(username)
         print(f"[DEBUG] get_user_by_username result: {user_session}")
         if not user_session:
             print(f"❌ [ERROR] No matching user found for username: {username}")
             return JSONResponse(status_code=401, content={"success": False, "message": f"Unauthorized: No user found for {username}"})
- 
-        # Set current user globally
+
         import rag
         rag.current_user = user_session
- 
+
         if rag.current_user is None:
             print("ERROR: current_user is not set!")
             return ""
 
-        # Check for confirmation if a pending order exists
-        # 1. Check for confirmation/cancellation if a pending order exists AND the current query is a confirmation/cancel
         confirmation_phrases = ["yes", "confirm", "place order", "yep", "sure", "okay", "ok"]
         negative_phrases = ["no", "cancel", "don't", "do not", "nah"]
 
@@ -81,7 +73,6 @@ async def query(request: Request):
                 pending_orders.pop(username)
                 return {"success": True, "answer": "❌ Order cancelled."}
 
-        # 2. Check for intent if user is sales rep
         if rag.current_user.is_sales_rep():
             print("DEBUG: User is sales rep")
             extracted = extract_order_details(user_query)
@@ -102,7 +93,6 @@ async def query(request: Request):
                     product_id = resolve_product_id(extracted["product_name"])
                     print(f"DEBUG: Resolved product_id for '{extracted['product_name']}': {product_id}")
 
-                # If warehouse_id is not an actual ID but a location name, resolve it
                 if warehouse_id and not warehouse_id.startswith("W"):
                     resolved_warehouse_id = resolve_warehouse_id(warehouse_id)
                     if resolved_warehouse_id:
@@ -110,7 +100,7 @@ async def query(request: Request):
 
                 if not product_id or not quantity or not dealer_id:
                     return {"success": False, "answer": "❌ Missing order details. Please specify dealer, product, and quantity."}
-                # Store/replace pending order for confirmation
+                
                 pending_orders[username] = {
                     "dealer_id": dealer_id,
                     "product_id": product_id,
@@ -126,7 +116,6 @@ async def query(request: Request):
             elif intent != "info":
                 return {"success": False, "answer": "❌ Could not understand your intent. Please try rephrasing."}
 
-        # SQL
         sql = get_llm_sql(user_query)
         sql = clean_sql_output(sql)
         print("DEBUG: SQL:", sql)
@@ -137,8 +126,7 @@ async def query(request: Request):
                 sql_context = sql_result_to_context(sql_result)
                 print("SQL Result:", sql_context)
                 print("=" * 50)
- 
-        # RAG
+
         rewritten_query = rewrite_query_for_rag(user_query)
         query_embedding = get_embedding(preprocess_query(rewritten_query))
         metadata_filter = extract_metadata_with_llm(user_query)
@@ -154,24 +142,23 @@ async def query(request: Request):
             print(rag_context)
         else:
             print("RAG Vector Search: No relevant results found.")
- 
-        # Final Response
+
         print("=" * 50)
         print("Final Response Generation")
         print("=" * 50)
         answer = get_llm_final_response(sql_context, rag_context, user_query=user_query)
         print(f"shivam : {answer}")
         sys.stdout.flush()
- 
+
         return {"success": True, "answer": answer}
- 
-    
+
     except Exception as e:
         print(f"🔥 [ERROR] Exception occurred in /api/query: {e}")
         sys.stdout.flush()
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
- 
-@app.post("/api/login")
+
+
+@router.post("/api/login")
 async def login(request: Request):
     print("\n✅ /api/login endpoint called")
     try:
@@ -180,12 +167,11 @@ async def login(request: Request):
         password = data.get("password")
         print(f"➡ Username: {username}")
         print(f"➡ Password: {password}")
-        
+
         user_session = authenticate_user(username, password)
         print(f"[DEBUG] authenticate_user result: {user_session}")
-        
+
         if user_session:
-            # 🔍 Log full session info
             print("✅ [LOGIN] User session established.")
             print(f"🧾 [SESSION DETAILS] user_id: {user_session.user_id}")
             print(f"🧾 [SESSION DETAILS] username: {user_session.username}")
@@ -220,5 +206,3 @@ async def login(request: Request):
             "message": "Internal server error",
             "error": str(e)
         })
-
-

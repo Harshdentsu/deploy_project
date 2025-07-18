@@ -1,20 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, User, Settings, LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";  //animation
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
-
 
 interface AssistantHeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   handleLogout: () => void;
   email: string;
-  username: string; // ✅ add this
+  username: string;
   role: string;
 }
 
@@ -24,7 +29,7 @@ const AssistantHeader = ({
   handleLogout,
   email: initialEmail,
   role,
-  username
+  username,
 }: AssistantHeaderProps) => {
   const { theme, setTheme } = useTheme();
   const [email, setEmail] = useState(initialEmail);
@@ -48,46 +53,43 @@ const AssistantHeader = ({
 
   const getInitials = (name: string) => {
     if (!name) return "U";
-    // Split on space, dot, underscore, or hyphen
     const parts = name.trim().split(/[\s._-]+/);
     return parts.length === 1
       ? parts[0][0].toUpperCase()
       : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-
   return (
     <motion.div
-      className="h-16 bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 relative z-10"
-      style={{ background: undefined }}
+      className="h-16 w-full bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 sm:px-6 py-2 z-10"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-
+      {/* Left Section */}
       <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-3">
-          {/* Hamburger menu button - only visible on mobile */}
-          <button
-            className="md:hidden text-gray-700 dark:text-white mr-3"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <div className="flex items-center space-x-2 text-lg italic font-medium text-gray-900 dark:text-white">
-            <img
-              src={theme === "dark" ? "public/wheely_white.png" : "public/orange_logo.png"}
-              alt="Wheely Logo"
-              className="w-40 h-18"
-            />
+        {/* Hamburger */}
+        <button
+          className="md:hidden text-gray-700 dark:text-white mr-3"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
 
-            {/* <p className="font-bold dark:text-white">Wheely</p> */}
-          </div>
+        {/* Logo */}
+        <div className="flex items-center text-lg italic font-medium text-gray-900 dark:text-white">
+          <img
+            src={theme === "dark" ? "/wheely_white.png" : "/wheely.png"}
+            alt="Wheely Logo"
+            className="h-10 sm:h-14 w-auto object-contain"
+          />
+
         </div>
       </div>
 
+      {/* Right Section */}
       <div className="flex items-center space-x-4">
-        {/* Dark Mode Toggle Button */}
+        {/* Theme Toggle */}
         <Button
           variant="ghost"
           size="sm"
@@ -98,27 +100,38 @@ const AssistantHeader = ({
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
 
+        {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
                 <AvatarFallback
-                  className={`text-sm font-medium ${theme === "dark" ? "bg-orange-700 text-white" : "bg-orange-400 text-white"
+                  className={`text-sm font-medium ${theme === "dark"
+                      ? "bg-orange-700 text-white"
+                      : "bg-orange-400 text-white"
                     }`}
                 >
                   {getInitials(username)}
                 </AvatarFallback>
-
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg" align="end">
+          <DropdownMenuContent
+            className="w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg"
+            align="end"
+          >
             <div className="px-4 py-3">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{email}</p>
-              <Badge variant="secondary" className="mt-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 text-xs">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {email}
+              </p>
+              <Badge
+                variant="secondary"
+                className="mt-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 text-xs"
+              >
                 {role ? role.charAt(0).toUpperCase() + role.slice(1) : "Role"}
               </Badge>
             </div>
+
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
             <DropdownMenuItem className="text-gray-700 dark:text-white">
               <User className="mr-2 h-4 w-4" />
@@ -143,4 +156,4 @@ const AssistantHeader = ({
   );
 };
 
-export default AssistantHeader; 
+export default AssistantHeader;

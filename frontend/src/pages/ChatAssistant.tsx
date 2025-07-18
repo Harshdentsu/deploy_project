@@ -40,6 +40,23 @@ const ChatAssistant = () => {
       messages: []
     }
   ]);
+
+  // Load chats from localStorage on mount
+  useEffect(() => {
+    const savedChats = localStorage.getItem("wheely_chats");
+    if (savedChats) {
+      try {
+        const parsed = JSON.parse(savedChats);
+        if (Array.isArray(parsed)) setChats(parsed);
+      } catch {}
+    }
+  }, []);
+
+  // Save chats to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("wheely_chats", JSON.stringify(chats));
+  }, [chats]);
+
   const currentChat = chats.find(chat => chat.id === currentChatId);
   const hasMessages = currentChat?.messages && currentChat.messages.length > 0;
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,12 +69,11 @@ const ChatAssistant = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // --- Role-based suggested queries logic (moved from Assistant.tsx) ---
   const roleBasedQueries = {
     dealer: [
       { text: "Show me status of my claims" },
-      { text: "Show me SKU Availability" },
-      { text: "Show me similar products to" },
+      { text: "Show me SKU Availability", iconImage: "/box.png" },
+      { text: "Show me similar products " },
       { text: "Show me orders placed for me" }
     ],
     admin: [
@@ -75,6 +91,7 @@ const ChatAssistant = () => {
       { text: "Tell me about the product", icon: "📦" }
     ]
   };
+
   const normalizedRole = (role || "").toLowerCase();
   const suggestedQueries = roleBasedQueries[normalizedRole] || roleBasedQueries.default;
 
@@ -164,7 +181,6 @@ const ChatAssistant = () => {
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
-        // Move cursor to the end
         const length = cleanedQuery.length;
         inputRef.current.setSelectionRange(length, length);
       }
@@ -181,39 +197,94 @@ const ChatAssistant = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-orange-500 via-orange-300 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white flex overflow-hidden">
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        chats={chats}
-        currentChatId={currentChatId}
-        setCurrentChatId={(id: string) => {
-          setCurrentChatId(id);
-        }}
-        handleNewChat={() => {
-          const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
-          setChats(prev => [
-            ...prev,
-            { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
-          ]);
-          setCurrentChatId(newChatId);
-          setInputFocused(true);
-          setShowRightPanel(true);
-          setShowSuggestedQueries(false);
-          setTimeout(() => {
-            if (inputRef.current) inputRef.current.focus();
-          }, 100);
-        }}
-        handleDeleteChat={(chatId) => {
-          setChats(prev => prev.filter(chat => chat.id !== chatId));
-          if (currentChatId === chatId) {
-            setCurrentChatId("1");
-          }
-        }}
-        navigate={navigate}
-      />
+    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white flex overflow-hidden">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block">
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          chats={chats}
+          currentChatId={currentChatId}
+          setCurrentChatId={setCurrentChatId}
+          handleNewChat={() => {
+            const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
+            setChats(prev => [
+              ...prev,
+              { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
+            ]);
+            setCurrentChatId(newChatId);
+            setInputFocused(true);
+            setShowRightPanel(true);
+            setShowSuggestedQueries(false);
+            setTimeout(() => {
+              if (inputRef.current) inputRef.current.focus();
+            }, 100);
+          }}
+          handleDeleteChat={(chatId) => {
+            setChats(prev => prev.filter(chat => chat.id !== chatId));
+            if (currentChatId === chatId) {
+              setCurrentChatId("1");
+            }
+          }}
+          navigate={navigate}
+        />
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 flex md:hidden">
+          {/* Sidebar Panel */}
+          <div className="relative z-50 w-64 bg-white dark:bg-gray-900 shadow-lg">
+            <Sidebar
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+              chats={chats}
+              currentChatId={currentChatId}
+              setCurrentChatId={setCurrentChatId}
+              handleNewChat={() => {
+                const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
+                setChats(prev => [
+                  ...prev,
+                  { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
+                ]);
+                setCurrentChatId(newChatId);
+                setInputFocused(true);
+                setShowRightPanel(true);
+                setShowSuggestedQueries(false);
+                setTimeout(() => {
+                  if (inputRef.current) inputRef.current.focus();
+                }, 100);
+                setSidebarOpen(false);
+              }}
+              handleDeleteChat={(chatId) => {
+                setChats(prev => {
+                  const filtered = prev.filter(chat => chat.id !== chatId);
+                  // If the deleted chat was current, select next or fallback
+                  if (currentChatId === chatId) {
+                    if (filtered.length > 0) {
+                      setCurrentChatId(filtered[0].id);
+                    } else {
+                      setCurrentChatId("1");
+                    }
+                  }
+                  return filtered;
+                });
+                setSidebarOpen(false);
+              }}
+              navigate={navigate}
+            />
+          </div>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black opacity-50"
+            onClick={() => setSidebarOpen(false)}
+          />
+        </div>
+      )}
+
+
       <div className="flex-1 flex">
-        <div className="w-full flex flex-col bg-white dark:bg-gray-900 dark:text-white relative transition-all duration-300">
+        <div className="w-full flex flex-col dark:bg-gray-900 dark:text-white relative transition-all duration-300">
           <AssistantHeader
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
@@ -244,8 +315,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-            <div className="w-full px-4 sm:px-8 mb-8">
-              <div className="w-full max-w-2xl mx-auto">
+            <div className="w-full px-2 sm:px-4 md:px-8 mb-4">
+              <div className="w-full max-w-full md:max-w-2xl mx-auto">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}
@@ -257,15 +328,18 @@ const ChatAssistant = () => {
             </div>
           </div>
         </div>
+
         {showRightPanel && (
-          <SuggestedQueriesSidebar
-            suggestedQueries={suggestedQueries}
-            handleSuggestedQuery={handleSuggestedQuery}
-          />
+          <div className="hidden md:block">
+            <SuggestedQueriesSidebar
+              suggestedQueries={suggestedQueries}
+              handleSuggestedQuery={handleSuggestedQuery}
+            />
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default ChatAssistant; 
+export default ChatAssistant;

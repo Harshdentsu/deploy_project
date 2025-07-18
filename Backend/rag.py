@@ -531,7 +531,7 @@ IMPORTANT ROLE-BASED ACCESS CONTROL:
         "3. claim(claim_id, dealer_id, status, claim_date, product_id, amount, reason,sales_rep_id)\n"
         "4. product(product_id, product_name, category, price, section_width, aspect_ratio, construction_type, rim_diameter_inch)\n"
         "5. warehouse(warehouse_id, location, zone)\n"
-        "6. sales_reps(sales_rep_id, name, zone)\n"
+        "6. sales_reps(sales_rep_id, name, zone,monthly_sales_target,monthly_sales_achieved)\n"
         "7. inventory(product_id, warehouse_id, quantity)\n"
         "8. orders(order_id, dealer_id, product_id, warehouse_id, quantity, unit_price(rupees), total_cost, order_date, sales_rep_id)\n\n"
         "🔗 Relationships:\n"

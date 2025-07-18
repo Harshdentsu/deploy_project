@@ -7,9 +7,6 @@ from vector_trigger import listen_to_new_orders
 from inventory_trigger import listen_to_inventory_updates
 from dealer_anlytics_api import router as dealer_analytics_router
 import asyncio
-import sys
-from fastapi.responses import JSONResponse
-from fastapi import Request
 
 app = FastAPI()
 
@@ -30,8 +27,7 @@ app.include_router(dealer_analytics_router)  # ✅ Add dealer analytics
 # Mount login_api endpoints
 app.mount("/", login_app)
 
-@app.on_event("startup")
-async def start_background_listeners():
-    asyncio.create_task(listen_to_new_orders())
-    asyncio.create_task(listen_to_inventory_updates())
-
+# @app.on_event("startup")
+# async def start_background_listeners():
+#     asyncio.create_task(listen_to_new_orders())
+#     asyncio.create_task(listen_to_inventory_updates())

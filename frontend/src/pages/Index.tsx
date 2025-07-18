@@ -62,7 +62,7 @@ const Index = () => {
             >
               Welcome to{" "}
               <span className="inline-flex items-center gap-2">
-                <span className="bg-gradient-to-b from-black to-orange-500 bg-clip-text text-transparent">
+                <span className="text-orange-500">
                   Wheely
                 </span>
               </span>

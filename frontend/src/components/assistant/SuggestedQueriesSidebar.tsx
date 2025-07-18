@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 interface SuggestedQuery {
   text: string;
-  icon: string;
+  iconImage: string; 
 }
 
 interface SuggestedQueriesSidebarProps {
@@ -43,34 +43,20 @@ const SuggestedQueriesSidebar = ({
             ease: "easeOut",
           }}
           onClick={() => handleSuggestedQuery(query.text)}
+          className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-orange-900"
         >
-          <div className="text-2xl text-orange-600 dark:text-orange-300"></div>
-          <motion.button
-            key={index}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 0.5,
-              delay: 0.4 + index * 0.1,
-              ease: "easeOut",
-            }}
-            onClick={() => handleSuggestedQuery(query.text)}
-            className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-orange-900"
-          >
-            {/* Only show icon if it exists */}
-            {query.icon && (
-              <div className="text-2xl text-orange-600 dark:text-orange-300">
-                {query.icon}
-              </div>
-            )}
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-200 leading-tight text-center">
-              {query.text}
-            </p>
-          </motion.button>
-
+          {/* Show image icon if present */}
+          {query.iconImage && (
+            <img
+              src={query.iconImage}
+              alt="icon"
+              className="w-8 h-8 object-contain"
+            />
+          )}
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-200 leading-tight text-center">
+            {query.text}
+          </p>
         </motion.button>
-
-
       ))}
     </motion.div>
   );

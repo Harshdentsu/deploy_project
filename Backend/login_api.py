@@ -11,18 +11,13 @@ from rag import (
     get_user_by_username, extract_order_details, resolve_product_id, resolve_dealer_id, place_order, resolve_warehouse_id
 )
 import sys
-
-pending_orders = {}
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+pending_orders = {}
  
+
 @app.post("/api/query")
 async def query(request: Request):
     global pending_orders
@@ -225,4 +220,5 @@ async def login(request: Request):
             "message": "Internal server error",
             "error": str(e)
         })
+
 

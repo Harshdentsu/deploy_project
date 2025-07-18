@@ -24,7 +24,7 @@ jobs:
           python-version: '3.11'
 
       - name: Create and start virtual environment and install dependencies
-        working-directory: ./backend
+        working-directory: ./Backend
         run: |
           python -m venv venv
           source venv/bin/activate

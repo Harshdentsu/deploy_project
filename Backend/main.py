@@ -24,7 +24,7 @@ app.add_middleware(
 app.include_router(email_router)
 app.include_router(chart_router)
 app.include_router(dealer_analytics_router)
-app.include_router(login_router, prefix="/api")
+app.include_router(login_router)
 
 # Optional: Background tasks
 # @app.on_event("startup")

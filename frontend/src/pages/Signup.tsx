@@ -35,7 +35,8 @@ const Signup = () => {
 
     try {
       // Request backend to send verification link (token will be generated and stored in DB)
-      const response = await fetch('http://localhost:8000/api/send-verification-link', {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/send-verification-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

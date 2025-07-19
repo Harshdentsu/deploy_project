@@ -35,13 +35,19 @@ const Index = () => {
 
   return (
     <>
-      <div className="absolute top-4 left-4 z-50">
+      <div className="absolute top-4 left-4 z-50 flex items-center space-x-1">
+        {/* Logo 2 - slightly larger */}
         <img
-          src="/orange_logo.png"
-          alt="Wheely Logo"
-          className="h-8 sm:h-8 md:h-12 lg:h-12 w-auto object-contain"
+          src="/logo2.png"
+          alt="Logo 2"
+          className="h-5 sm:h-10 md:h-14 lg:h-8 w-auto object-contain"
         />
-
+        {/* Trial Logo */}
+        <img
+          src="/trial.png"
+          alt="Wheely Logo"
+          className="h-5 sm:h-8 md:h-12 lg:h-10 w-auto object-contain"
+        />
       </div>
 
       <div className="min-h-screen w-full overflow-x-hidden flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">

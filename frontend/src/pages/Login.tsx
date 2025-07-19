@@ -36,7 +36,8 @@ const Login = () => {
     }
     setIsLoading(true);
     try {
-     const response = await fetch("https://wheely-backend-cmdzb7awfucmc6c0.australiaeast-01.azurewebsites.net/api/login", {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

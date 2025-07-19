@@ -36,18 +36,17 @@ const SetupAccount = () => {
       return;
     }
   
+    const API_URL = import.meta.env.VITE_API_URL;
     const verifyToken = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/verify-email", {
+        const response = await fetch(`${API_URL}/api/verify-email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ token })
         });
-  
         const result = await response.json();
-  
         if (result.success) {
           setEmail(result.email);  // ✅ this sets the actual email from backend
         } else {
@@ -100,7 +99,8 @@ const SetupAccount = () => {
     try {
       // 1. Setup account
       console.log("Setup payload:", { email, ...formData });
-      const setupRes = await fetch('http://localhost:8000/api/setup-account', {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const setupRes = await fetch(`${API_URL}/api/setup-account`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, ...formData }),

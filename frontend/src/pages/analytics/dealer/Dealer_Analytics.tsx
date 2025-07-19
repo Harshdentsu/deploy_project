@@ -22,13 +22,14 @@ export const Dealer_Analytics = () => {
   // Get dealerId from localStorage
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const dealerId = user.dealer_id;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Example: fetch dealer-specific KPI and target here
 
   useEffect(() => {
     if (!dealerId) return;
 
-    fetch(`http://localhost:8000/orders-count?dealer_id=${dealerId}`)
+    fetch(`${API_URL}/orders-count?dealer_id=${dealerId}`)
       .then(res => res.json())
       .then(data => {
         setKpi(prev => {
@@ -37,17 +38,17 @@ export const Dealer_Analytics = () => {
           return updated;
         });
       })
-    fetch(`http://localhost:8000/total-units?dealer_id=${dealerId}`)
+    fetch(`${API_URL}/total-units?dealer_id=${dealerId}`)
       .then(res => res.json())
       .then(data => {
         setTotalUnits(data.total_units || 0);
       })
-    fetch(`http://localhost:8000/total-purchase?dealer_id=${dealerId}`)
+    fetch(`${API_URL}/total-purchase?dealer_id=${dealerId}`)
       .then(res => res.json())
       .then(data => {
         setKpi(prev => ({ ...prev, total_purchase: data.total_purchase || 0 }));
       });
-    fetch(`http://localhost:8000/dealer-claims-count?dealer_id=${dealerId}`)
+    fetch(`${API_URL}/dealer-claims-count?dealer_id=${dealerId}`)
       .then((res) => res.json())
       .then((data) => {
         setKpi(prev => ({ ...prev, claims_raised: data.claims_raised || 0 }));

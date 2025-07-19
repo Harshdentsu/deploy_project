@@ -41,9 +41,18 @@ const ChatAssistant = () => {
     }
   ]);
 
-  // Load chats from localStorage on mount
+  // Helper to get user-specific chat key
+  const getChatKey = () => {
+    const userJson = localStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : {};
+    const email = user.email || localStorage.getItem("username") || "guest";
+    return `wheely_chats_${email}`;
+  };
+
+  // Load chats from localStorage on mount (user-specific)
   useEffect(() => {
-    const savedChats = localStorage.getItem("wheely_chats");
+    const chatKey = getChatKey();
+    const savedChats = localStorage.getItem(chatKey);
     if (savedChats) {
       try {
         const parsed = JSON.parse(savedChats);
@@ -52,9 +61,10 @@ const ChatAssistant = () => {
     }
   }, []);
 
-  // Save chats to localStorage whenever they change
+  // Save chats to localStorage whenever they change (user-specific)
   useEffect(() => {
-    localStorage.setItem("wheely_chats", JSON.stringify(chats));
+    const chatKey = getChatKey();
+    localStorage.setItem(chatKey, JSON.stringify(chats));
   }, [chats]);
 
   const currentChat = chats.find(chat => chat.id === currentChatId);
@@ -68,13 +78,14 @@ const ChatAssistant = () => {
   const username = user.username || localStorage.getItem("username") || "";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const roleBasedQueries = {
     dealer: [
-      { text: "Show me status of my claims" },
-      { text: "Show me SKU Availability", iconImage: "/box.png" },
-      { text: "Show me similar products " },
-      { text: "Show me orders placed for me" }
+      { text: "Claim Status",iconImage: "/claim.png" },
+      { text: " SKU Availability", iconImage: "/trend.png" },
+      { text: "Similar Products ", iconImage: "/sku.png" },
+      { text:" My Orders", iconImage: "/box.png" }
     ],
     admin: [
       { text: "List all sales reps" },
@@ -82,10 +93,10 @@ const ChatAssistant = () => {
       { text: "Add a new SKU" }
     ],
     sales_rep: [
-      { text: " Show me SKU Availability" },
-      { text: "Show me dealer performance" },
-      { text: " Place an order" },
-      { text: " Show me regional sales" }
+      { text: "SKU Availability", iconImage: "/trend.png" },
+      { text: "Regional Sales",iconImage: "/pin.png" },
+      { text: " Place an Order", iconImage: "/box.png" },
+      { text: " Monthly Target", iconImage: "/target.png" }
     ],
     default: [
       { text: "Tell me about the product", icon: "📦" }
@@ -100,6 +111,53 @@ const ChatAssistant = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentChat?.messages]);
+
+  // Track newly created chat IDs in this session
+  const newChatIdsRef = useRef<Set<string>>(new Set());
+
+  // When a new chat is created, add its ID to the set
+  useEffect(() => {
+    if (!chats.some(chat => chat.id === currentChatId)) return;
+    const current = chats.find(chat => chat.id === currentChatId);
+    if (current && current.messages.length === 0 && !newChatIdsRef.current.has(currentChatId)) {
+      newChatIdsRef.current.add(currentChatId);
+    }
+  }, [chats, currentChatId]);
+
+  // Helper to format username for greeting
+  const getFormattedName = () => {
+    if (!username) return 'there';
+    const parts = username.split('.');
+    return parts
+      .map(
+        part => part.charAt(0).toUpperCase() + part.slice(1)
+      )
+      .join(' ');
+  };
+
+  // Show greeting message only for new chats created in this session
+  useEffect(() => {
+    if (
+      currentChat &&
+      currentChat.messages.length === 0 &&
+      newChatIdsRef.current.has(currentChatId)
+    ) {
+      const greetingMessage: Message = {
+        id: 'greeting',
+        content: `Hello ${getFormattedName()}, how can I assist you today?`,
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      setChats(prev => prev.map(chat =>
+        chat.id === currentChatId && chat.messages.length === 0
+          ? { ...chat, messages: [greetingMessage] }
+          : chat
+      ));
+      // Remove from set so greeting is only added once
+      newChatIdsRef.current.delete(currentChatId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChatId, currentChat]);
 
   const handleSendMessage = async () => {
     if (!currentInput.trim()) return;
@@ -124,7 +182,7 @@ const ChatAssistant = () => {
     setSelectedContext(null);
     try {
       const username = localStorage.getItem("username");
-      const response = await fetch("http://127.0.0.1:8000/api/query", {
+      const response = await fetch(`${API_URL}/api/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, query: userMessage.content }),
@@ -316,7 +374,7 @@ const ChatAssistant = () => {
               </div>
             )}
             <div className="w-full pl-1 pr-2 sm:pl-4 sm:pr-10 md:pl-6 md:pr-16 mb-4">
-              <div className="w-full max-w-3xl mx-auto ml-4 mr-3">
+              <div className="w-full max-w-4xl mx-auto ml-4 mr-3">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}

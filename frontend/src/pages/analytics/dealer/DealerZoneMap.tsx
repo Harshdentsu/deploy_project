@@ -26,7 +26,8 @@ export default function DealerZoneMap({ dealerId, darkMap = false, mapHeight }: 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/zone-wise-orders?dealer_id=${dealerId}`)
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/zone-wise-orders?dealer_id=${dealerId}`)
       .then((res) => res.json())
       .then((data) => {
         setZoneData(data);

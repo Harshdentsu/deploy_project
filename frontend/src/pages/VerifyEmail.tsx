@@ -39,7 +39,8 @@ const VerifyEmail = () => {
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/verify-email', {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

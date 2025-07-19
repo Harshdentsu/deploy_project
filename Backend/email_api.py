@@ -15,6 +15,10 @@ import bcrypt
 load_dotenv()
 router = APIRouter()
 
+# Use environment variables for base URLs
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:8080")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
+
 JWT_SECRET = os.getenv("EMAIL_VERIFICATION_SECRET", "super-secret-key")
 JWT_ALGORITHM = "HS256"
 VERIFICATION_TOKEN_EXPIRY = 30  # minutes
@@ -43,7 +47,7 @@ def decode_verification_token(token: str):
 
 def send_verification_email(email: str, token: str):
     try:
-        verification_link = f"http://localhost:8080/setup-account?token={token}"
+        verification_link = f"{FRONTEND_BASE_URL}/setup-account?token={token}"
         message = Mail(
             from_email=FROM_EMAIL,
             to_emails=email,
@@ -51,7 +55,7 @@ def send_verification_email(email: str, token: str):
             html_content=f"""
                 <p>Hello,</p>
                 <p>Thank you for signing up with <strong>Wheely</strong>. To complete your email verification, please click the link below:</p>
-                <p><a href="{verification_link}">Verify your email address</a></p>
+                <p><a href=\"{verification_link}\">Verify your email address</a></p>
                 <p>This secure link will expire in 30 minutes.</p>
                 <p>If you did not request this, please ignore this email.</p>
                 <p>— The Wheely Team</p>
@@ -77,7 +81,7 @@ def generate_reset_token(email: str, user_id: str):
 # Utility to send password reset email
 def send_password_reset_email(email: str, token: str):
     try:
-        reset_link = f"http://localhost:8080/reset-password?token={token}"
+        reset_link = f"{FRONTEND_BASE_URL}/reset-password?token={token}"
        
         message = Mail(
             from_email=FROM_EMAIL,
@@ -216,7 +220,7 @@ async def setup_account(request: Request):
     try:
         async with httpx.AsyncClient() as client:
             login_response = await client.post(
-                "http://localhost:8000/api/login",
+                f"{BACKEND_BASE_URL}/api/login",
                 json={"username": username, "password": password}
             )
             login_data = login_response.json()

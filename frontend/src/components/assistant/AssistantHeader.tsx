@@ -78,11 +78,20 @@ const AssistantHeader = ({
 
         {/* Logo */}
         <div className="flex items-center text-lg italic font-medium text-gray-900 dark:text-white">
-          <img
-            src={theme === "dark" ? "/wheely_white.png" : "/wheely.png"}
-            alt="Wheely Logo"
-            className="h-10 sm:h-14 w-auto object-contain"
-          />
+        <div className="absolute top-4 left-2 z-50 flex items-center space-x-1">
+        {/* Logo 2 - slightly larger */}
+        <img
+          src="/logo2.png"
+          alt="Logo 2"
+          className="h-5 sm:h-10 md:h-14 lg:h-8 w-auto  object-contain"
+        />
+        {/* Trial Logo */}
+        <img
+          src="/trial.png"
+          alt="Wheely Logo"
+          className="h-5 sm:h-8 md:h-12 lg:h-10 pt-2 w-auto object-contain"
+        />
+      </div>
 
         </div>
       </div>

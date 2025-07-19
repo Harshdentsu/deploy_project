@@ -28,7 +28,8 @@ const ForgotPassword = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/auth/request-password-reset", {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/auth/request-password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

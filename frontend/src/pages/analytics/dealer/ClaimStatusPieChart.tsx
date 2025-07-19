@@ -23,7 +23,8 @@ const ClaimStatusPieChart: React.FC<Props> = ({ dealerId }) => {
   const [data, setData] = useState<ClaimStatus[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/claim-status-distribution?dealer_id=${dealerId}`)
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/claim-status-distribution?dealer_id=${dealerId}`)
       .then((res) => res.json())
       .then(setData)
       .catch(console.error);

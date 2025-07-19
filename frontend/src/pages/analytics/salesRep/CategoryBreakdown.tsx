@@ -15,8 +15,9 @@ export default function CategoryBreakdown() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const salesRepId = user.sales_rep_id;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    fetch(`http://localhost:8000/category-sales-breakdown?sales_rep_id=${salesRepId}`)
+    fetch(`${API_URL}/category-sales-breakdown?sales_rep_id=${salesRepId}`)
       .then(res => res.json())
       .then(setData)
       .catch(console.error);

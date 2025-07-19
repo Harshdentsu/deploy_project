@@ -26,7 +26,8 @@ export default function ZoneMap({ darkMap = false, mapHeight }: ZoneMapProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/zone-sales")
+    const API_URL = import.meta.env.VITE_API_URL;
+    fetch(`${API_URL}/zone-sales`)
       .then((res) => res.json())
       .then((data) => {
         setZoneSales(data);

@@ -29,8 +29,9 @@ const TopSKUs: React.FC<TopSKUsProps> = ({
 
   useEffect(() => {
     if (!dealerId) return;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    fetch(`http://localhost:8000/top-ordered-skus?dealer_id=${dealerId}&sort_by=${sortBy}`)
+    fetch(`${API_URL}/top-ordered-skus?dealer_id=${dealerId}&sort_by=${sortBy}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

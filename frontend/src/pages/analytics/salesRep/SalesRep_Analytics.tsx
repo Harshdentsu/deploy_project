@@ -48,13 +48,14 @@ export default function SalesRep_Analytics() {
   const [topSKUs, setTopSKUs] = useState<any[]>([]);
   const [loadingSKUs, setLoadingSKUs] = useState(false);
   const [kpi, setKpi] = useState({ total_orders: 0, total_sales: 0 });
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const sales_rep_id = user.sales_rep_id || localStorage.getItem("sales_rep_id");
     if (!sales_rep_id) return;
 
-    fetch(`http://localhost:8000/kpi-metrics?sales_rep_id=${sales_rep_id}`)
+    fetch(`${API_URL}/kpi-metrics?sales_rep_id=${sales_rep_id}`)
       .then(res => res.json())
       .then(setKpi)
       .catch(err => console.error("Error fetching KPI metrics", err));
@@ -65,7 +66,7 @@ export default function SalesRep_Analytics() {
     const salesrepid = user.sales_rep_id || localStorage.getItem("sales_rep_id");
     if (!salesrepid) return;
 
-    fetch(`http://localhost:8000/monthly-target?salesrepid=${encodeURIComponent(salesrepid)}`)
+    fetch(`${API_URL}/monthly-target?salesrepid=${encodeURIComponent(salesrepid)}`)
       .then(res => res.json())
       .then(data => {
         setRepData(data);
@@ -79,7 +80,7 @@ export default function SalesRep_Analytics() {
     if (!sales_rep_id) return;
 
     setLoadingDealer(true);
-    fetch(`http://localhost:8000/dealer-performance?sales_rep_id=${encodeURIComponent(sales_rep_id)}`)
+    fetch(`${API_URL}/dealer-performance?sales_rep_id=${encodeURIComponent(sales_rep_id)}`)
       .then(res => res.json())
       .then(data => {
         setDealerPerformance(data);

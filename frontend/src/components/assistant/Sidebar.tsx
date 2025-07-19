@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MoreVertical, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MoreVertical, BarChart2, ChevronLeft, ChevronRight, PanelLeft, PanelRight } from "lucide-react";
 
 interface Chat {
   id: string;
@@ -48,31 +48,21 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [showMenuId]);
 
   return (
-    <div className={`transition-all duration-300 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-sm ${sidebarOpen ? 'w-48 sm:w-56' : 'w-16 sm:w-20'} overflow-hidden`}>
+    <div className={`h-screen flex flex-col transition-all duration-300 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm ${sidebarOpen ? 'w-48 sm:w-56' : 'w-16 sm:w-20'} overflow-hidden`}>
       
       {/* Logo / Toggle Button */}
       <div
-        className="flex items-center justify-center px-2 pt-2 pb-2 cursor-pointer"
-        onMouseEnter={() => setHoveringLogo(true)}
-        onMouseLeave={() => setHoveringLogo(false)}
+        className="flex items-center justify-center px-2 pt-4 pb-2 cursor-pointer"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         title="Toggle sidebar"
       >
-        {!hoveringLogo ? (
-          <img
-            src="/logo3.png"
-            alt="Logo"
-            className="h-12 w-auto object-contain"
-          />
-        ) : (
-          <div className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-            {sidebarOpen ? (
-              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            ) : (
-              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            )}
-          </div>
-        )}
+        <div className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+          {sidebarOpen ? (
+            <PanelLeft className="w-7 h-7 text-black-600 dark:text-gray-300" />
+          ) : (
+            <PanelRight className="w-7 h-7 text-black-600 dark:text-gray-300" />
+          )}
+        </div>
       </div>
 
       {/* New Chat & Analytics Buttons */}

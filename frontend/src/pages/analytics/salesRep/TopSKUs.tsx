@@ -24,8 +24,9 @@ const TopSKUs: React.FC<TopSKUsProps> = ({ topSKUs, loading, height = 220 }) => 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const salesRepId = user.sales_rep_id || localStorage.getItem("sales_rep_id");
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    fetch(`http://localhost:8000/top-selling-skus?sales_rep_id=${salesRepId}`)
+    fetch(`${API_URL}/top-selling-skus?sales_rep_id=${salesRepId}`)
       .then((res) => res.json())
       .then((data) => setSkuData(data || []))
       .catch((err) => {

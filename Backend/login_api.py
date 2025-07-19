@@ -206,10 +206,9 @@ async def login(request: Request):
             "message": "Internal server error",
             "error": str(e)
         })
-@router.get("/api/check-env")
-def check_env():
-    return {
-        "url": os.getenv("SUPABASE_URL"),
-        "key_present": bool(os.getenv("SUPABASE_SERVICE_KEY")),
-    }
+@router.get("/api/debug-users")
+def debug_users():
+    from supabase_client import debug_users_table
+    data = debug_users_table()
+    return {"users": data}
 

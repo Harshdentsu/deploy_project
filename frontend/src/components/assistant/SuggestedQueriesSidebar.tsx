@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 
 interface SuggestedQuery {
   text: string;
-  iconImage: string; 
+  value: string;
+  iconImage: string;
 }
 
 interface SuggestedQueriesSidebarProps {
@@ -42,7 +43,7 @@ const SuggestedQueriesSidebar = ({
             delay: 0.4 + index * 0.1,
             ease: "easeOut",
           }}
-          onClick={() => handleSuggestedQuery(query.text)}
+          onClick={() => handleSuggestedQuery(query.value)}
           className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-orange-900"
         >
           {/* Show image icon if present */}

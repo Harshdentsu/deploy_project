@@ -6,7 +6,6 @@ import ChatMessages from "@/components/assistant/ChatMessages";
 import SuggestedQueriesSidebar from "@/components/assistant/SuggestedQueriesSidebar";
 import Sidebar from "@/components/assistant/Sidebar";
 import { useToast } from "@/hooks/use-toast";
-
 interface Message {
   id: string;
   content: string;
@@ -40,7 +39,6 @@ const ChatAssistant = () => {
       messages: []
     }
   ]);
-
   // Helper to get user-specific chat key
   const getChatKey = () => {
     const userJson = localStorage.getItem("user");
@@ -82,10 +80,10 @@ const ChatAssistant = () => {
 
   const roleBasedQueries = {
     dealer: [
-      { text: "Claim Status",iconImage: "/claim.png" },
-      { text: " SKU Availability", iconImage: "/trend.png" },
-      { text: "Similar Products ", iconImage: "/sku.png" },
-      { text:" My Orders", iconImage: "/box.png" }
+      { text: "Claim Status",value: "Show me my claim status", iconImage: "/claim.png" },
+      { text: " SKU Availability",value:"stocks of urbanBias", iconImage: "/trend.png" },
+      { text: "Similar Products ",value:"Show me the similar products to",iconImage: "/sku.png" },
+      { text:" My Orders",value:"What are the orders placed by me this month",iconImage: "/box.png" }
     ],
     admin: [
       { text: "List all sales reps" },
@@ -93,10 +91,10 @@ const ChatAssistant = () => {
       { text: "Add a new SKU" }
     ],
     sales_rep: [
-      { text: "SKU Availability", iconImage: "/trend.png" },
-      { text: "Regional Sales",iconImage: "/pin.png" },
-      { text: " Place an Order", iconImage: "/box.png" },
-      { text: " Monthly Target", iconImage: "/target.png" }
+      { text: "Assigned Dealers",value:"Dealers assigned to me", iconImage: "/trend.png"},
+      { text: "SKU Availability",value:"Show me stocks of ",iconImage: "/pin.png" },
+      { text: " Place an Order",value:"Place an order of " ,iconImage: "/box.png" },
+      { text: "Monthly Performance",value:"Show me monthly performance", iconImage: "/target.png"}
     ],
     default: [
       { text: "Tell me about the product", icon: "📦" }
@@ -253,7 +251,6 @@ const ChatAssistant = () => {
       if (inputRef.current) inputRef.current.focus();
     }, 100);
   };
-
   return (
     <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white flex overflow-hidden">
       {/* Desktop Sidebar */}

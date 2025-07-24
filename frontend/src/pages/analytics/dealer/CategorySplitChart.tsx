@@ -21,9 +21,9 @@ interface Props {
 
 const CategorySplitChart: React.FC<Props> = ({ dealerId }) => {
   const [data, setData] = useState<CategoryData[]>([]);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
-    fetch(`http://localhost:8000/category-split?dealer_id=${dealerId}`)
+    fetch(`${API_URL}/category-split?dealer_id=${dealerId}`)
       .then(res => res.json())
       .then(setData)
       .catch(console.error);

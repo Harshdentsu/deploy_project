@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Card from "./Card";
 import { motion } from "framer-motion";
-import { Import } from "lucide-react";
+import { Import, ArrowRight } from "lucide-react";
 import TotalOrdersCard from "./TotalOrdersCard";
 import TotalUnitsCard from "./TotalUnitsCard";
 import TotalPurchaseCard from "./TotalPurchaseCard";
@@ -60,7 +60,7 @@ export const Dealer_Analytics = () => {
 
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-tr from-indigo-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 font-sans">
+    <div className="min-h-screen w-full bg-gradient-to-tr from-indigo-50 via-white to-blue-100 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 font-sans">
       <div className="w-full max-w-7xl mx-auto py-4 px-4">
         <div className="flex items-center justify-between mb-2">
           <motion.h1
@@ -71,7 +71,13 @@ export const Dealer_Analytics = () => {
           >
             📊  Dashboard
           </motion.h1>
-          <Button onClick={() => navigate('/chat-assistant')}> Back</Button>
+
+          <div className="flex items-center">
+            <Button onClick={() => navigate('/chat-assistant')} className="group flex items-center space-x-0">
+              <span>Assistant</span>
+              <ArrowRight className="h-5 w-5 transform transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+          </div>
         </div>
 
         <motion.div
@@ -97,19 +103,19 @@ export const Dealer_Analytics = () => {
         >
           <Card className="h-[260px] flex flex-col justify-center bg-gray-100 dark:bg-gray-800 shadow-lg rounded-2xl p-4 hover:shadow-xl transition-shadow border-t-4 border-gray-300">
             <div className="w-full h-full flex items-center justify-center">
-              <TopSKUs dealerId={dealerId}  loading={false} sortBy="quantity" />
+              <TopSKUs dealerId={dealerId} loading={false} sortBy="quantity" />
             </div>
           </Card>
           <Card className="h-[260px] flex flex-col justify-center bg-gray-100 dark:bg-gray-800 shadow-lg rounded-2xl p-4 hover:shadow-xl transition-shadow border-t-4 border-gray-300">
 
             < div className="w-full h-full flex items-center justify-center">
-             <ClaimStatusPieChart dealerId={dealerId} />
+              <ClaimStatusPieChart dealerId={dealerId} />
             </div>
 
           </Card>
           <Card className="h-[260px] flex flex-col justify-center bg-gray-100 dark:bg-gray-800 shadow-lg rounded-2xl p-4 hover:shadow-xl transition-shadow border-t-4 border-gray-300">
             <div className="w-full h-full flex items-center justify-center">
-            <CategorySplitChart dealerId={dealerId}  />
+              <CategorySplitChart dealerId={dealerId} />
             </div>
           </Card>
         </motion.div>

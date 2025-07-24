@@ -25,7 +25,7 @@ const SuggestedQueriesSidebar = ({
       style={{ boxShadow: "none", width: "auto", overflow: "visible" }}
     >
       <motion.h3
-        className="text-base font-semibold text-gray-900 dark:text-white mb-1 mr-2"
+        className="text-base font-semibold text-gray-900 dark:text-slate-100 mb-1 mr-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
@@ -44,7 +44,7 @@ const SuggestedQueriesSidebar = ({
             ease: "easeOut",
           }}
           onClick={() => handleSuggestedQuery(query.value)}
-          className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-orange-900"
+          className="w-32 h-24 sm:w-36 sm:h-24 p-3 bg-white dark:bg-black border border-gray-300 dark:border-neutral-900 rounded-lg shadow hover:shadow-lg focus:ring-2 focus:ring-orange-400 transition-all text-center flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 dark:hover:bg-neutral-900"
         >
           {/* Show image icon if present */}
           {query.iconImage && (
@@ -54,7 +54,7 @@ const SuggestedQueriesSidebar = ({
               className="w-8 h-8 object-contain"
             />
           )}
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-200 leading-tight text-center">
+          <p className="text-sm font-medium text-gray-700 dark:text-slate-200 leading-tight text-center">
             {query.text}
           </p>
         </motion.button>

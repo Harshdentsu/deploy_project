@@ -80,10 +80,10 @@ const ChatAssistant = () => {
 
   const roleBasedQueries = {
     dealer: [
-      { text: "Claim Status",value: "Show me my claim status", iconImage: "/claim.png" },
-      { text: " SKU Availability",value:"stocks of urbanBias", iconImage: "/trend.png" },
-      { text: "Similar Products ",value:"Show me the similar products to",iconImage: "/sku.png" },
-      { text:" My Orders",value:"What are the orders placed by me this month",iconImage: "/box.png" }
+      { text: "Claim Status", value: "Show me my claim status", iconImage: "/claim.png" },
+      { text: " SKU Availability", value: "stocks of urbanBias", iconImage: "/growth.png" },
+      { text: "Similar Products ", value: "Show me the similar products to", iconImage: "/sku.png" },
+      { text: " My Orders", value: "What are the orders placed by me this month", iconImage: "/box.png" }
     ],
     admin: [
       { text: "List all sales reps" },
@@ -91,10 +91,10 @@ const ChatAssistant = () => {
       { text: "Add a new SKU" }
     ],
     sales_rep: [
-      { text: "Assigned Dealers",value:"Dealers assigned to me", iconImage: "/trend.png"},
-      { text: "SKU Availability",value:"Show me stocks of ",iconImage: "/pin.png" },
-      { text: " Place an Order",value:"Place an order of " ,iconImage: "/box.png" },
-      { text: "Monthly Performance",value:"Show me monthly performance", iconImage: "/target.png"}
+      { text: "Assigned Dealers", value: "Dealers assigned to me", iconImage: "/user1.png" },
+      { text: "SKU Availability", value: "Show me stocks of ", iconImage: "/trend.png" },
+      { text: " Place an Order", value: "Place an order of ", iconImage: "/box.png" },
+      { text: "Monthly Performance", value: "Show me monthly performance", iconImage: "/award.png" }
     ],
     default: [
       { text: "Tell me about the product", icon: "📦" }
@@ -252,7 +252,7 @@ const ChatAssistant = () => {
     }, 100);
   };
   return (
-    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white flex overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 flex overflow-hidden">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <Sidebar
@@ -331,7 +331,7 @@ const ChatAssistant = () => {
           </div>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black opacity-50"
+            className="fixed inset-0 z-40 bg-black-400 opacity-50"
             onClick={() => setSidebarOpen(false)}
           />
         </div>
@@ -339,7 +339,7 @@ const ChatAssistant = () => {
 
 
       <div className="flex-1 flex">
-        <div className="w-full flex flex-col dark:bg-gray-900 dark:text-white relative transition-all duration-300">
+        <div className="w-full flex flex-col dark:bg-black-400 dark:text-slate-100 relative transition-all duration-300">
           <AssistantHeader
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
@@ -348,21 +348,25 @@ const ChatAssistant = () => {
             role={role}
             username={username}
           />
-          <div className="flex-1 flex flex-col overflow-hidden relative dark:text-white">
-            <ChatMessages
-              messages={currentChat?.messages || []}
-              isTyping={isTyping}
-              animatingMessageId={undefined}
-              animatedContent={""}
-              messagesEndRef={messagesEndRef}
-              onContextSelect={handleContextSelect}
-            />
+          <div className="flex-1 flex flex-col overflow-hidden relative dark:text-slate-100">
+            <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-16 max-w-5xl mx-auto w-full">
+              <ChatMessages
+                messages={currentChat?.messages || []}
+                isTyping={isTyping}
+                animatingMessageId={undefined}
+                animatedContent={""}
+                messagesEndRef={messagesEndRef}
+                onContextSelect={handleContextSelect}
+                username={username}
+              />
+            </div>
+
             {selectedContext && (
               <div className="max-w-4xl mx-auto mb-2">
-                <div className="bg-orange-100 text-orange-800 px-4 py-2 rounded-lg flex items-center justify-between text-sm">
-                  <span>Context: <span className="font-semibold">{selectedContext}</span></span>
+                <div className="bg-neutral-900/90 text-slate-100 px-4 py-2 rounded-lg flex items-center justify-between text-sm shadow-md border border-neutral-800">
+                  <span>Context: <span className="font-semibold text-white">{selectedContext}</span></span>
                   <button
-                    className="ml-4 text-xs text-orange-700 hover:underline"
+                    className="ml-4 text-xs text-slate-300 hover:underline hover:text-white"
                     onClick={() => setSelectedContext(null)}
                   >
                     Clear
@@ -370,8 +374,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-            <div className="w-full pl-1 pr-2 sm:pl-4 sm:pr-10 md:pl-6 md:pr-16 mb-4">
-              <div className="w-full max-w-4xl mx-auto ml-4 mr-3">
+            <div className="w-full px-2 sm:px-4 md:px-6 lg:px-10 xl:px-16 mb-4">
+              <div className="w-full max-w-4xl mx-auto">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}
@@ -382,11 +386,12 @@ const ChatAssistant = () => {
               </div>
             </div>
 
+
           </div>
         </div>
 
         {showRightPanel && (
-          <div className="hidden md:block">
+          <div className="hidden md:block bg-black-400 border-l border-neutral-900 shadow-lg">
             <SuggestedQueriesSidebar
               suggestedQueries={suggestedQueries}
               handleSuggestedQuery={handleSuggestedQuery}

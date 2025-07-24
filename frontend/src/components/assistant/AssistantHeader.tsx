@@ -60,64 +60,60 @@ const AssistantHeader = ({
   };
 
   return (
-    <motion.div
-      className="h-16 w-full bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 sm:px-6 py-2 z-10"
+    <motion.header
+      className="h-16 w-full bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 border-b border-gray-200 dark:border-neutral-900 flex items-center justify-between px-3 sm:px-5 md:px-8 py-2 z-50 relative"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      {/* Left Section */}
-      <div className="flex items-center space-x-4">
-        {/* Hamburger */}
+      {/* Left section */}
+      <div className="flex items-center space-x-3">
+        {/* Hamburger menu */}
         <button
-          className="md:hidden text-gray-700 dark:text-white mr-3"
+          className="md:hidden text-gray-700 dark:text-slate-100"
           onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label="Toggle Sidebar"
         >
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Logo */}
-        <div className="flex items-center text-lg italic font-medium text-gray-900 dark:text-white">
-        <div className="absolute top-4 left-2 z-50 flex items-center space-x-1">
-        {/* Logo 2 - slightly larger */}
-        <img
-          src="/logo2.png"
-          alt="Logo 2"
-          className="h-5 sm:h-10 md:h-14 lg:h-8 w-auto  object-contain"
-        />
-        {/* Trial Logo */}
-        <img
-          src="/trial.png"
-          alt="Wheely Logo"
-          className="h-5 sm:h-8 md:h-12 lg:h-10 pt-2 w-auto object-contain"
-        />
-      </div>
-
+        {/* Logos */}
+        <div className="flex items-center space-x-1">
+          <img
+            src="/logo2.png"
+            alt="Logo 2"
+            className="h-6 sm:h-8 md:h-10 lg:h-10 w-auto object-contain"
+          />
+          <img
+            src="/trial.png"
+            alt="Wheely Logo"
+            className="h-5 sm:h-7 md:h-9 lg:h-9 pt-1 w-auto object-contain"
+          />
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center space-x-4">
-        {/* Theme Toggle */}
+      {/* Right section */}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Theme toggle */}
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           aria-label="Toggle dark mode"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-orange-800 bg-orange-100"
+          className="h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400 dark:bg-orange-800 bg-orange-100"
         >
           {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
 
-        {/* User Dropdown */}
+        {/* User dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
               <Avatar className="h-10 w-10">
                 <AvatarFallback
                   className={`text-sm font-medium ${theme === "dark"
-                      ? "bg-orange-700 text-white"
-                      : "bg-orange-400 text-white"
+                    ? "bg-orange-700 text-white"
+                    : "bg-orange-400 text-white"
                     }`}
                 >
                   {getInitials(username)}
@@ -125,12 +121,13 @@ const AssistantHeader = ({
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
-            className="w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg"
+            className="w-56 bg-white dark:bg-black border border-gray-200 dark:border-neutral-900 shadow-lg"
             align="end"
           >
             <div className="px-4 py-3">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                 {email}
               </p>
               <Badge
@@ -142,6 +139,7 @@ const AssistantHeader = ({
             </div>
 
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+
             <DropdownMenuItem className="text-gray-700 dark:text-white">
               <User className="mr-2 h-4 w-4" />
               Profile
@@ -150,7 +148,9 @@ const AssistantHeader = ({
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
+
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+
             <DropdownMenuItem
               className="text-red-600 dark:text-red-400"
               onClick={handleLogout}
@@ -161,7 +161,7 @@ const AssistantHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </motion.div>
+    </motion.header>
   );
 };
 

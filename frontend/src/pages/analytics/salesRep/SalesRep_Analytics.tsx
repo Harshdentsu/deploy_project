@@ -9,6 +9,7 @@ import TopSellingSKUCard from "./TopSellingSKUCard";
 import MonthlyTargetCard from "./MonthlyTargetCard";
 import TotalOrdersCard from "./TotalOrdersCard";
 import TotalSalesCard from "./TotalSalesCard";
+import { ArrowRight } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -111,17 +112,14 @@ export default function SalesRep_Analytics() {
           >
             📊 Dashboard
           </motion.h1>
-          <Button onClick={() => navigate('/chat-assistant')}> Back</Button>
+          <Button onClick={() => navigate('/chat-assistant')}> Assistant <ArrowRight className="ml-2 h-5 w-5 transform transition-transform duration-300 group-hover:translate-x-1" /></Button>
         </div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.6 }}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4"
         >
-          
-          
         <TotalOrdersCard totalOrders={kpi.total_orders} />
         <TotalSalesCard totalSales={kpi.total_sales} />
         <MonthlyTargetCard target={target} />

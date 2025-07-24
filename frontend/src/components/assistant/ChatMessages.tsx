@@ -58,21 +58,25 @@ const ChatMessages = ({
   return (
     <ScrollArea className="flex-1 px-2 sm:px-4 md:px-6 py-4 md:pr-64">
   <div className="w-full max-w-3xl mx-auto space-y-6">
+    {/* Empty state placeholder */}
+
     {messages.map((message, index) => (
       <motion.div
         key={message.id}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.1 }}
-        className={`flex ${
+        className={`flex w-full ${
           message.sender === "user" ? "justify-end" : "justify-start"
         }`}
         onMouseUp={() => handleMouseUp(message)}
       >
         <div
-          className={`flex space-x-3 sm:space-x-4 ${
-            message.sender === "user" ? "flex-row-reverse space-x-reverse" : ""
-          } w-full`}
+          className={`flex space-x-3 sm:space-x-4 w-full max-w-2xl ${
+            message.sender === "user"
+              ? "flex-row-reverse space-x-reverse items-end ml-auto"
+              : "items-start mr-auto"
+          }`}
         >
           {/* Avatar */}
           <div className="flex-shrink-0">
@@ -98,10 +102,10 @@ const ChatMessages = ({
 
           {/* Message Bubble */}
           <div
-            className={`rounded-2xl p-3 sm:p-4 text-sm sm:text-base max-w-[85%] ${
+            className={`rounded-2xl p-3 sm:p-4 text-sm sm:text-base max-w-[90vw] md:max-w-[75%] lg:max-w-[70%] xl:max-w-[60%] break-words ${
               message.sender === "user"
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
-                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-right ml-2"
+                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 text-left mr-2"
             }`}
           >
             <ReactMarkdown

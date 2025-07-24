@@ -84,7 +84,7 @@ const ChatInput = ({
       transition={{ duration: 0.3 }}
     >
       <div
-        className="flex flex-wrap sm:flex-nowrap items-center gap-2 px-2 sm:px-4 py-2 w-full bg-white dark:bg-black rounded-full border border-gray-300 dark:border-neutral-900"
+        className="flex flex-wrap sm:flex-nowrap items-center gap-2 px-3 sm:px-6 py-3 w-full bg-white dark:bg-black rounded-2xl border border-gray-300 dark:border-neutral-900 shadow-lg focus-within:shadow-xl transition-all duration-200"
       >
         <Input
           ref={inputRef}
@@ -94,10 +94,12 @@ const ChatInput = ({
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
           onFocus={onFocus}
-          className="flex-1 min-w-[150px] sm:min-w-[250px] bg-transparent border-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+          className="flex-1 min-w-[180px] sm:min-w-[300px] bg-transparent border-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-base sm:text-lg py-2"
         />
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+         
+          {/* Voice input button */}
           <Button
             type="button"
             onClick={handleVoiceInput}
@@ -112,13 +114,14 @@ const ChatInput = ({
             {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
           </Button>
 
+          {/* Send button */}
           <Button
             onClick={handleSendMessage}
             disabled={!currentInput.trim() || isTyping}
-            className="h-9 w-9 xs:h-10 xs:w-10 p-0 bg-orange-600 text-white rounded-full hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 w-11 xs:h-12 xs:w-12 p-0 bg-gradient-to-br from-orange-500 to-purple-600 text-white rounded-full shadow-lg hover:scale-110 hover:from-purple-600 hover:to-orange-500 hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white dark:border-black"
             aria-label="Send message"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-6 w-6" />
           </Button>
         </div>
       </div>

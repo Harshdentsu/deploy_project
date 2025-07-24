@@ -39,8 +39,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [showMenuId, setShowMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const buttonRefs = useRef<{ [id: string]: HTMLButtonElement | null }>({});
+  
 
+   useEffect(() => {
+    const ids = chats.map(c => c.id);
+    const unique = new Set(ids);
+    if (ids.length !== unique.size) {
+      console.warn("Duplicate chat IDs found!", ids);
+    }
+  }, [chats]);
+  
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if ((event.target as HTMLElement).closest('.sidebar-floating-menu')) return;
@@ -76,23 +85,42 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-2 mt-2 px-2">
-        <button
-          onClick={handleNewChat}
-          className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
-          title="New Chat"
-        >
-          <FontAwesomeIcon icon={faMessage} />
-          {sidebarOpen && <span className="text-sm font-medium">New Chat</span>}
-        </button>
-
-        <button
-          onClick={() => navigate('/analytics')}
-          className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
-          title="Analytics"
-        >
-          <BarChart2 className="h-5 w-5" />
-          {sidebarOpen && <span className="text-sm font-medium">Analytics</span>}
-        </button>
+        {/* New Chat Button with Tooltip */}
+        <div className={sidebarOpen ? '' : 'flex justify-center'}>
+          <div className={sidebarOpen ? '' : 'group relative'}>
+            <button
+              onClick={handleNewChat}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
+              title="New Chat"
+            >
+              <FontAwesomeIcon icon={faMessage} />
+              {sidebarOpen && <span className="text-sm font-medium">New Chat</span>}
+            </button>
+            {!sidebarOpen && (
+              <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded bg-black text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap shadow-lg">
+                New Chat
+              </span>
+            )}
+          </div>
+        </div>
+        {/* Analytics Button with Tooltip */}
+        <div className={sidebarOpen ? '' : 'flex justify-center'}>
+          <div className={sidebarOpen ? '' : 'group relative'}>
+            <button
+              onClick={() => navigate('/analytics')}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
+              title="Analytics"
+            >
+              <BarChart2 className="h-5 w-5" />
+              {sidebarOpen && <span className="text-sm font-medium">Analytics</span>}
+            </button>
+            {!sidebarOpen && (
+              <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 rounded bg-black text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap shadow-lg">
+                Analytics
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Chat List */}
@@ -102,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <ul className="flex-1 w-full space-y-1">
-          {chats.map((chat, idx) => (
+          {chats.map((chat) => (
             <li
               key={chat.id}
               onClick={() => setCurrentChatId(chat.id)}
@@ -118,14 +146,14 @@ const Sidebar: React.FC<SidebarProps> = ({
               {sidebarOpen && (
                 <div className="relative flex items-center" onClick={e => e.stopPropagation()}>
                   <button
-                    ref={el => buttonRefs.current[idx] = el}
+                    ref={el => buttonRefs.current[chat.id] = el}
                     onClick={e => {
                       e.stopPropagation();
                       if (showMenuId === chat.id) {
                         setShowMenuId(null);
                         setMenuPosition(null);
                       } else {
-                        const rect = buttonRefs.current[idx]?.getBoundingClientRect();
+                        const rect = buttonRefs.current[chat.id]?.getBoundingClientRect();
                         if (rect) {
                           setMenuPosition({
                             top: rect.top + rect.height / 2,

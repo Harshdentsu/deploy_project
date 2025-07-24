@@ -908,12 +908,13 @@ def get_llm_final_response(sql_context, rag_context, user_query):
                 "\nACCESS RESTRICTIONS:\n"
                 "- The user is a DEALER.\n"
                 "- Dealers can view product and inventory data.\n"
-                "- Dealers cannot place orders ,sales rep places order for dealers , tell them to contact their sales representative with the necessary details.\n"
+                "- Dealers can request orders, which will be sent to their assigned sales representative for approval and placement.\n"
                 "- They are only allowed to view claims belonging to their own dealer_id.\n"
                 "- If a dealer asks about another dealer's claims, respond with:\n"
                 "  'As a dealer, you do not have access to other dealers' data.'\n"
+                 )
                 
-            )
+            
         elif current_user.is_sales_rep():
             user_context += (
                 f"- Sales Rep ID: {current_user.sales_rep_id}\n"
@@ -937,7 +938,7 @@ def get_llm_final_response(sql_context, rag_context, user_query):
     system_prompt = (
         "You are an AI assistant named 'wheely' for the tyre manufacturing company.\n"
         "Add many emojis response to enhance interactivity.\n"
-        "If user query asks about joke respond with different random jokes related to tyres.\n"
+        "If user query asks about joke dont respond.\n"
         "Respond concisely, professionally, and like a helpful human assistant.\n"
         "Respond without mentioning from which context sql or rag the response is from.\n"
         "Use Indian currency (₹) when showing prices.\n"
@@ -1059,26 +1060,25 @@ def place_order(dealer_id, product_id, quantity, warehouse_id=None):
         # 4. Start transaction
         cur.execute("BEGIN")
  
-        # 5. Insert order into orders table
-        cur.execute("SELECT COUNT(*) FROM orders")
-        row_count_result = cur.fetchone()
-        if row_count_result is None:
-            row_count = 0
+        # 5. Insert order into orders table with unique order_id
+        cur.execute("SELECT order_id FROM orders WHERE order_id ~ '^ORD[0-9]{4}$' ORDER BY order_id DESC LIMIT 1")
+        row = cur.fetchone()
+        if row and row[0]:
+            last_num = int(row[0][3:])
+            next_order_number = last_num + 1
         else:
-            row_count = row_count_result[0]
-        next_order_number = row_count + 1
-        order_id = f"ORD{next_order_number:04d}"  # ORD0001, ORD0002, etc.
- 
-        # 5. Insert order into orders table with custom order_id
+            next_order_number = 1
+        order_id = f"ORD{next_order_number:04d}"
+        
         cur.execute("""
-            INSERT INTO orders (
-                order_id, warehouse_id, product_id, order_date,  quantity,dealer_id,
-                unit_price, total_cost, sales_rep_id
-            )
-            VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s)
+        INSERT INTO orders (
+        order_id, warehouse_id, product_id, order_date,  quantity,dealer_id,
+        unit_price, total_cost, sales_rep_id
+        )
+        VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s)
         """, (
-            order_id, selected_warehouse_id, product_id, quantity, dealer_id,
-            unit_price, total_cost, current_user.sales_rep_id
+        order_id, selected_warehouse_id, product_id, quantity, dealer_id,
+        unit_price, total_cost, current_user.sales_rep_id
         ))
         
  
@@ -1365,7 +1365,31 @@ def get_sales_progress(sales_rep_id):
         print(f"DEBUG: Sales progress fetch error: {e}")
         return None
 
-
+def create_order_request(dealer_id, sales_rep_id, product_id, quantity):
+    """
+    Insert a new order request into the order_requests table.
+    """
+    try:
+        conn = psycopg2.connect(
+            dbname=os.getenv("dbname"),
+            user=os.getenv("user"),
+            password=os.getenv("password"),
+            host=os.getenv("host"),
+            port=os.getenv("port")
+        )
+        cur = conn.cursor()
+        print("DEBUG: Inserting into order_requests with", dealer_id, sales_rep_id, product_id, quantity)
+        cur.execute("""
+            INSERT INTO order_requests (dealer_id, sales_rep_id, product_id, quantity)
+            VALUES (%s, %s, %s, %s)
+        """, (dealer_id, sales_rep_id, product_id, quantity))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"success": True, "message": "Order request created."}
+    except Exception as e:
+        print("❌ DB Error:", e)
+        return {"success": False, "message": str(e)}
 
 #####################################################################################################################
 ####################### MAIN ########################################################################
@@ -1563,7 +1587,6 @@ def get_user_by_username(username):
     """
     Look up a user by username and return a UserSession object (no password check).
     """
-    import os
     import psycopg2
     try:
         conn = psycopg2.connect(
@@ -1575,10 +1598,11 @@ def get_user_by_username(username):
         )
         cur = conn.cursor()
         query = """
-        SELECT u.user_id, u.username, u.role, u.dealer_id, d.name as dealer_name, u.sales_rep_id, s.name as sales_rep_name
+        SELECT u.user_id, u.username, u.role, u.dealer_id, d.name as dealer_name,
+               COALESCE(u.sales_rep_id, d.sales_rep_id) as sales_rep_id, s.name as sales_rep_name
         FROM users u
         LEFT JOIN dealer d ON u.dealer_id = d.dealer_id
-        LEFT JOIN sales_reps s ON u.sales_rep_id = s.sales_rep_id
+        LEFT JOIN sales_reps s ON COALESCE(u.sales_rep_id, d.sales_rep_id) = s.sales_rep_id
         WHERE u.username = %s
         """
         cur.execute(query, (username,))
@@ -1587,11 +1611,12 @@ def get_user_by_username(username):
         conn.close()
         if result:
             user_id, username, role, dealer_id, dealer_name, sales_rep_id, sales_rep_name = result
+            print(f"[DEBUG] get_user_by_username: username={username}, role={role}, sales_rep_id={sales_rep_id}, sales_rep_name={sales_rep_name}")
             return UserSession(user_id, username, role, dealer_id, dealer_name, sales_rep_id, sales_rep_name)
         else:
+            print("[DEBUG] get_user_by_username: No result found for", username)
             return None
     except Exception as e:
         print(f"get_user_by_username error: {e}")
         return None
- 
  

@@ -76,7 +76,7 @@ const ChatAssistant = () => {
   const username = user.username || localStorage.getItem("username") || "";
   const { toast } = useToast();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "http://localhost:8000";
 
   const roleBasedQueries = {
     dealer: [
@@ -252,117 +252,129 @@ const ChatAssistant = () => {
     }, 100);
   };
   return (
-    <div className="h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 flex overflow-hidden">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block">
-        <Sidebar
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          chats={chats}
-          currentChatId={currentChatId}
-          setCurrentChatId={setCurrentChatId}
-          handleNewChat={() => {
-            const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
-            setChats(prev => [
-              ...prev,
-              { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
-            ]);
-            setCurrentChatId(newChatId);
-            setInputFocused(true);
-            setShowRightPanel(true);
-            setShowSuggestedQueries(false);
-            setTimeout(() => {
-              if (inputRef.current) inputRef.current.focus();
-            }, 100);
-          }}
-          handleDeleteChat={(chatId) => {
-            setChats(prev => prev.filter(chat => chat.id !== chatId));
-            if (currentChatId === chatId) {
-              setCurrentChatId("1");
-            }
-          }}
-          navigate={navigate}
-        />
-      </div>
+    <div className="min-h-screen h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 flex flex-col overflow-hidden">
+      {/* Header always at the top, full width */}
+      <AssistantHeader
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        handleLogout={handleLogout}
+        email={user.email}
+        role={role}
+        username={username}
+        salesRepId={user.sales_rep_id}
+      />
 
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          {/* Sidebar Panel */}
-          <div className="relative z-50 w-64 bg-white dark:bg-gray-900 shadow-lg">
-            <Sidebar
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-              chats={chats}
-              currentChatId={currentChatId}
-              setCurrentChatId={setCurrentChatId}
-              handleNewChat={() => {
-                const newChatId = (Math.max(...chats.map(chat => parseInt(chat.id))) + 1).toString();
-                setChats(prev => [
-                  ...prev,
-                  { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
-                ]);
-                setCurrentChatId(newChatId);
-                setInputFocused(true);
-                setShowRightPanel(true);
-                setShowSuggestedQueries(false);
-                setTimeout(() => {
-                  if (inputRef.current) inputRef.current.focus();
-                }, 100);
-                setSidebarOpen(false);
-              }}
-              handleDeleteChat={(chatId) => {
-                setChats(prev => {
-                  const filtered = prev.filter(chat => chat.id !== chatId);
-                  // If the deleted chat was current, select next or fallback
-                  if (currentChatId === chatId) {
-                    if (filtered.length > 0) {
-                      setCurrentChatId(filtered[0].id);
-                    } else {
-                      setCurrentChatId("1");
-                    }
-                  }
-                  return filtered;
-                });
-                setSidebarOpen(false);
-              }}
-              navigate={navigate}
-            />
-          </div>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40 bg-black-400 opacity-50"
-            onClick={() => setSidebarOpen(false)}
-          />
-        </div>
-      )}
-
-
-      <div className="flex-1 flex">
-        <div className="w-full flex flex-col dark:bg-black-400 dark:text-slate-100 relative transition-all duration-300">
-          <AssistantHeader
+      {/* Main content area below header: sidebar | chat | suggested queries */}
+      <div className="flex-1 flex flex-row min-w-0 overflow-hidden">
+        {/* Desktop Sidebar - fixed */}
+        <div className="hidden md:block fixed left-0 top-16 h-[calc(100vh-4rem)] z-30 md:min-w-[200px] md:max-w-[220px] lg:max-w-[240px] xl:max-w-[260px] shadow-lg">
+          <Sidebar
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
-            handleLogout={handleLogout}
-            email={user.email}
-            role={role}
-            username={username}
+            chats={chats}
+            currentChatId={currentChatId}
+            setCurrentChatId={setCurrentChatId}
+            handleNewChat={() => {
+              const newChatId = Date.now().toString(); // ✅ Safe unique ID
+              setChats(prev => [
+                ...prev,
+                { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
+              ]);
+              setCurrentChatId(newChatId);
+              setInputFocused(true);
+              setShowRightPanel(true);
+              setShowSuggestedQueries(false);
+              setTimeout(() => {
+                if (inputRef.current) inputRef.current.focus();
+              }, 100);
+            }}
+            handleDeleteChat={(chatId) => {
+              setChats(prev => {
+                const filtered = prev.filter(chat => chat.id !== chatId);
+                // If the deleted chat was current, select next or fallback
+                if (currentChatId === chatId) {
+                  if (filtered.length > 0) {
+                    setCurrentChatId(filtered[0].id);
+                  } else {
+                    setCurrentChatId("1");
+                  }
+                }
+                return filtered;
+              });
+              setSidebarOpen(false);
+            }}
+            navigate={navigate}
           />
-          <div className="flex-1 flex flex-col overflow-hidden relative dark:text-slate-100">
-            <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-16 max-w-5xl mx-auto w-full">
-              <ChatMessages
-                messages={currentChat?.messages || []}
-                isTyping={isTyping}
-                animatingMessageId={undefined}
-                animatedContent={""}
-                messagesEndRef={messagesEndRef}
-                onContextSelect={handleContextSelect}
-                username={username}
+        </div>
+
+        {/* Spacer for fixed sidebar */}
+        <div className="hidden md:block md:min-w-[200px] md:max-w-[220px] lg:max-w-[240px] xl:max-w-[260px]" />
+
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            {/* Sidebar Panel */}
+            <div className="relative z-50 w-4/5 max-w-xs bg-white dark:bg-gray-900 shadow-lg">
+              <Sidebar
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+                chats={chats}
+                currentChatId={currentChatId}
+                setCurrentChatId={setCurrentChatId}
+                handleNewChat={() => {
+                  const newChatId = Date.now().toString(); // or use uuid if available
+                  setChats(prev => [
+                    ...prev,
+                    { id: newChatId, title: "New Thread", lastMessage: "", timestamp: new Date(), messages: [] }
+                  ]);
+                  setCurrentChatId(newChatId);
+                  setInputFocused(true);
+                  setShowRightPanel(true);
+                  setShowSuggestedQueries(false);
+                  setTimeout(() => {
+                    if (inputRef.current) inputRef.current.focus();
+                  }, 100);
+                  setSidebarOpen(false);
+                }}
+                handleDeleteChat={(chatId) => {
+                  setChats(prev => {
+                    const filtered = prev.filter(chat => chat.id !== chatId);
+                    if (currentChatId === chatId) {
+                      if (filtered.length > 0) {
+                        setCurrentChatId(filtered[0].id);
+                      } else {
+                        setCurrentChatId("1");
+                      }
+                    }
+                    return filtered;
+                  });
+                  setSidebarOpen(false);
+                }}
+                navigate={navigate}
               />
             </div>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40 bg-black-400 opacity-50"
+              onClick={() => setSidebarOpen(false)}
+            />
+          </div>
+        )}
 
+        {/* Main chat area */}
+        <div className="flex-1 flex flex-col dark:bg-black-400 dark:text-slate-100 relative transition-all duration-300 min-h-0 w-0">
+          <div className="flex-1 flex flex-col overflow-hidden relative dark:text-slate-100 min-h-0">
+            <ChatMessages
+              messages={currentChat?.messages || []}
+              isTyping={isTyping}
+              animatingMessageId={undefined}
+              animatedContent={""}
+              messagesEndRef={messagesEndRef}
+              onContextSelect={handleContextSelect}
+              username={username}
+            />
             {selectedContext && (
-              <div className="max-w-4xl mx-auto mb-2">
+              <div className="max-w-4xl mx-auto mb-2 px-2 sm:px-4">
                 <div className="bg-neutral-900/90 text-slate-100 px-4 py-2 rounded-lg flex items-center justify-between text-sm shadow-md border border-neutral-800">
                   <span>Context: <span className="font-semibold text-white">{selectedContext}</span></span>
                   <button
@@ -374,8 +386,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-            <div className="w-full px-2 sm:px-4 md:px-6 lg:px-10 xl:px-16 mb-4">
-              <div className="w-full max-w-4xl mx-auto">
+            <div className="w-full pl-1 pr-2 sm:pl-4 sm:pr-10 md:pl-6 md:pr-16 mb-4">
+              <div className="w-full max-w-4xl mx-auto ml-0 mr-0 sm:ml-4 sm:mr-3">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}
@@ -385,13 +397,12 @@ const ChatAssistant = () => {
                 />
               </div>
             </div>
-
-
           </div>
         </div>
 
+        {/* Suggested Queries Sidebar (desktop) */}
         {showRightPanel && (
-          <div className="hidden md:block bg-black-400 border-l border-neutral-900 shadow-lg">
+          <div className="hidden md:flex flex-col justify-start items-stretch bg-transparent border-l border-gray-200 dark:border-neutral-800 min-w-[240px] max-w-[280px] h-full pl-0 ml-2">
             <SuggestedQueriesSidebar
               suggestedQueries={suggestedQueries}
               handleSuggestedQuery={handleSuggestedQuery}
@@ -399,6 +410,15 @@ const ChatAssistant = () => {
           </div>
         )}
       </div>
+      {/* Suggested Queries (mobile, below chat area) */}
+      {showRightPanel && (
+        <div className="block md:hidden w-full px-2 pb-2">
+          <SuggestedQueriesSidebar
+            suggestedQueries={suggestedQueries}
+            handleSuggestedQuery={handleSuggestedQuery}
+          />
+        </div>
+      )}
     </div>
   );
 };

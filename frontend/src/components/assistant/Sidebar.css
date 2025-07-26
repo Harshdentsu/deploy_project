@@ -1,0 +1,27 @@
+/* Floating delete menu positioning using data attributes */
+.menu-pos {
+  position: fixed;
+  transform: translateY(-50%);
+}
+.menu-pos[data-top][data-left] {
+  top: attr(data-top px);
+  left: attr(data-left px);
+}
+/* Sidebar icon image filter for light/dark mode */
+.sidebar-icon-img {
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  filter: brightness(1.25);
+}
+@media (prefers-color-scheme: dark) {
+  .sidebar-icon-img {
+    filter: brightness(0.95);
+  }
+}
+
+/* Floating delete menu positioning */
+.sidebar-floating-menu[data-top][data-left] {
+  top: var(--menu-top);
+  left: var(--menu-left);
+  transform: translateY(-50%);
+}

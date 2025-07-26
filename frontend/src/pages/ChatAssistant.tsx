@@ -80,10 +80,10 @@ const ChatAssistant = () => {
 
   const roleBasedQueries = {
     dealer: [
-      { text: "Claim Status", value: "Show me my claim status", iconImage: "/claim.png" },
-      { text: " SKU Availability", value: "stocks of urbanBias", iconImage: "/growth.png" },
+      { text: "Claim Status", value: "Show me my all claim details", iconImage: "/claim.png" },
+      { text: " SKU Availability", value: "stocks of ", iconImage: "/growth.png" },
       { text: "Similar Products ", value: "Show me the similar products to", iconImage: "/sku.png" },
-      { text: " My Orders", value: "What are the orders placed by me this month", iconImage: "/box.png" }
+      { text: "  Order Request", value: "Place an order of ", iconImage: "/box.png" }
     ],
     admin: [
       { text: "List all sales reps" },
@@ -393,7 +393,6 @@ const ChatAssistant = () => {
                   setCurrentInput={setCurrentInput}
                   handleSendMessage={handleSendMessage}
                   isTyping={isTyping}
-                  inputRef={inputRef}
                 />
               </div>
             </div>

@@ -1,3 +1,4 @@
+import "./Sidebar.css";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMessage } from '@fortawesome/free-solid-svg-icons';
@@ -40,45 +41,45 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [showMenuId, setShowMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRefs = useRef<{ [id: string]: HTMLButtonElement | null }>({});
-  
 
-   useEffect(() => {
+
+  useEffect(() => {
     const ids = chats.map(c => c.id);
     const unique = new Set(ids);
     if (ids.length !== unique.size) {
       console.warn("Duplicate chat IDs found!", ids);
     }
   }, [chats]);
-  
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if ((event.target as HTMLElement).closest('.sidebar-floating-menu')) return;
-      setShowMenuId(null);
-      setMenuPosition(null);
-    }
-
+    const handleMenuClose = (e: MouseEvent) => {
+      if (!buttonRefs.current[showMenuId!]?.contains(e.target as Node)) {
+        setShowMenuId(null);
+        setMenuPosition(null);
+      }
+    };
     if (showMenuId) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('click', handleMenuClose);
     }
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleMenuClose);
+    };
   }, [showMenuId]);
 
   return (
-    <div className={`h-screen flex flex-col transition-all duration-300 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-black dark:via-neutral-900 dark:to-black border-r border-gray-200 dark:border-neutral-900 shadow-sm ${sidebarOpen ? 'w-48 sm:w-56' : 'w-16 sm:w-20'} overflow-hidden`}>
-      
+    <div className={`h-screen flex flex-col transition-all duration-300 bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-[#1A1A1F]  dark:to-black border-l border-gray-200 dark:border-neutral-900 shadow-sm ${sidebarOpen ? 'w-48 sm:w-56' : 'w-16 sm:w-20'} overflow-hidden`}>
+
       {/* Toggle Button */}
-      <div className="flex items-center justify-center px-2 pt-4 pb-2">
+      <div className={`flex items-center ${sidebarOpen ? 'justify-end' : 'justify-center'} px-2 pt-4 pb-2`}>
         <div
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 cursor-pointer"
+          className="p-2 rounded-full cursor-pointer bg-gray-100 dark:bg-neutral-800 bg-opacity-60 dark:bg-opacity-60 hover:bg-gray-200 dark:hover:bg-neutral-700 transition"
           title="Toggle sidebar"
           aria-label="Toggle sidebar"
         >
           {sidebarOpen ? (
-            <PanelLeft className="w-7 h-7 text-black-600 dark:text-slate-200" />
+            <PanelLeft className="w-7 h-7 text-gray-400 dark:text-gray-300 opacity-70" />
           ) : (
-            <PanelRight className="w-7 h-7 text-black-600 dark:text-slate-200" />
+            <PanelRight className="w-7 h-7 text-gray-400 dark:text-gray-300 opacity-70" />
           )}
         </div>
       </div>
@@ -90,10 +91,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={sidebarOpen ? '' : 'group relative'}>
             <button
               onClick={handleNewChat}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
               title="New Chat"
             >
-              <FontAwesomeIcon icon={faMessage} />
+              <img
+                src="/chat2.png"
+                alt="chat"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 object-contain sidebar-icon-img"
+              />
               {sidebarOpen && <span className="text-sm font-medium">New Chat</span>}
             </button>
             {!sidebarOpen && (
@@ -108,10 +113,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className={sidebarOpen ? '' : 'group relative'}>
             <button
               onClick={() => navigate('/analytics')}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md bg-gray-50 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md dark:bg-neutral-900 text-gray-800 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-neutral-800 transition duration-150 ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
               title="Analytics"
             >
-              <BarChart2 className="h-5 w-5" />
+              <img
+                src="/analytics.png"
+                alt="analytics"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 object-contain sidebar-icon-img"
+              />
               {sidebarOpen && <span className="text-sm font-medium">Analytics</span>}
             </button>
             {!sidebarOpen && (
@@ -121,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
         </div>
-      </div>
+      </div> 
 
       {/* Chat List */}
       <div className={`mt-6 flex-1 flex flex-col overflow-y-auto ${sidebarOpen ? '' : 'items-center'}`}>
@@ -177,11 +186,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Floating Delete Menu */}
         {showMenuId && menuPosition && (
           <div
-            className="sidebar-floating-menu fixed z-50 w-32 bg-white dark:bg-black border border-gray-200 dark:border-neutral-900 rounded-md shadow-lg"
-            style={{ top: menuPosition.top, left: menuPosition.left, transform: 'translateY(-50%)' }}
+            className={`sidebar-floating-menu fixed z-50 w-32 bg-white dark:bg-black border border-gray-200 dark:border-neutral-900 rounded-md shadow-lg menu-pos`}
+            data-top={menuPosition.top}
+            data-left={menuPosition.left}
+            onClick={(e) => e.stopPropagation()} // Add this line
           >
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation(); // Add this line
                 handleDeleteChat(showMenuId);
                 setShowMenuId(null);
                 setMenuPosition(null);
@@ -194,6 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
     </div>
+
   );
 };
 

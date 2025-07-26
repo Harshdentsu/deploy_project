@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Send, Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
+import { Send, Mic, MicOff } from "lucide-react";
 
 interface ChatInputProps {
   currentInput: string;
@@ -12,7 +11,7 @@ interface ChatInputProps {
   placeholder?: string;
   className?: string;
   onFocus?: () => void;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
 const ChatInput = ({
@@ -28,6 +27,7 @@ const ChatInput = ({
   const [listening, setListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
+  const [inputHeight, setInputHeight] = useState(48);
 
   const handleVoiceInput = () => {
     const SpeechRecognition =
@@ -84,26 +84,38 @@ const ChatInput = ({
       transition={{ duration: 0.3 }}
     >
       <div
-        className="flex flex-wrap sm:flex-nowrap items-center gap-2 px-3 sm:px-6 py-3 w-full bg-white dark:bg-black rounded-2xl border border-gray-300 dark:border-neutral-900 shadow-lg focus-within:shadow-xl transition-all duration-200"
+        className="flex items-center gap-2 px-3 sm:px-6 py-3 w-full bg-white dark:bg-black rounded-2xl border border-gray-300 dark:border-neutral-900 shadow-lg focus-within:shadow-xl transition-all duration-200"
       >
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder={placeholder}
-          value={interimTranscript || currentInput}
-          onChange={(e) => setCurrentInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-          onFocus={onFocus}
-          className="flex-1 min-w-[180px] sm:min-w-[300px] bg-transparent border-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-base sm:text-lg py-2"
-        />
-
-        <div className="flex gap-2 items-center">
-         
+        <div className="flex-1 flex items-end">
+          <textarea
+            ref={inputRef}
+            placeholder={placeholder}
+            value={interimTranscript || currentInput}
+            onChange={(e) => {
+              setCurrentInput(e.target.value);
+              // Auto expand/shrink textarea
+              const ta = e.target;
+              ta.style.height = "48px";
+              ta.style.height = Math.min(ta.scrollHeight, 180) + "px";
+              setInputHeight(Math.min(ta.scrollHeight, 180));
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            onFocus={onFocus}
+            className="w-full min-w-0 resize-none bg-transparent border-none focus:ring-0 focus:outline-none focus:border-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 text-base sm:text-lg py-2 overflow-y-auto"
+            style={{ minHeight: "48px", maxHeight: "180px", height: inputHeight + "px" }}
+          />
+        </div>
+        <div className="flex gap-2 items-center flex-shrink-0">
           {/* Voice input button */}
           <Button
             type="button"
             onClick={handleVoiceInput}
-            className={`h-9 w-9 xs:h-10 xs:w-10 p-0 rounded-full border transition-all duration-200 relative overflow-hidden
+            className={`h-11 w-11 p-0 rounded-full border transition-all duration-200 relative overflow-hidden
               ${listening
                 ? "bg-orange-600 text-white border-orange-700 shadow-[0_0_0_3px_rgba(168,85,247,0.4)] hover:bg-orange-700"
                 : "bg-gray-100 dark:bg-neutral-900 text-gray-800 dark:text-slate-100 border-gray-300 dark:border-neutral-900 hover:bg-gray-200 dark:hover:bg-neutral-800"
@@ -111,14 +123,14 @@ const ChatInput = ({
             title={listening ? "Stop voice input" : "Start voice input"}
             disabled={isTyping}
           >
-            {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            {listening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
           </Button>
 
           {/* Send button */}
           <Button
             onClick={handleSendMessage}
             disabled={!currentInput.trim() || isTyping}
-            className="h-11 w-11 xs:h-12 xs:w-12 p-0 bg-gradient-to-br from-orange-500 to-purple-600 text-white rounded-full shadow-lg hover:scale-110 hover:from-purple-600 hover:to-orange-500 hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white dark:border-black"
+            className="h-11 w-11 p-0 bg-gradient-to-br from-orange-500 to-purple-600 text-white rounded-full shadow-lg hover:scale-110 hover:from-purple-600 hover:to-orange-500 hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white dark:border-black"
             aria-label="Send message"
           >
             <Send className="h-6 w-6" />

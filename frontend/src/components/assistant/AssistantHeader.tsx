@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,AvatarImage} from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, User, Settings, LogOut, Moon, Sun, Bell } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -68,22 +68,22 @@ const AssistantHeader = ({
   }, [username, initialEmail]);
 
   useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
-      setNotifOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+
+    if (notifOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
     }
-  };
 
-  if (notifOpen) {
-    document.addEventListener("mousedown", handleClickOutside);
-  } else {
-    document.removeEventListener("mousedown", handleClickOutside);
-  }
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [notifOpen]);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notifOpen]);
 
 
   const getInitials = (name: string) => {
@@ -148,20 +148,23 @@ const AssistantHeader = ({
             alt="Logo 2"
             className="h-6 sm:h-8 md:h-10 lg:h-10 w-auto object-contain"
           />
-          <img
-            src="/trial.png"
-            alt="Wheely Logo"
-            className="h-5 sm:h-7 md:h-9 lg:h-9 pt-1 w-auto object-contain"
-          />
+          {theme === "dark" ? (
+            <img
+              src="/wheely_white2.png"
+              alt="Wheely Logo Dark"
+              className="h-5 sm:h-7 md:h-9 lg:h-9 pt-1 w-auto object-contain"
+            />
+          ) : (
+            <img
+              src="/trial.png"
+              alt="Wheely Logo"
+              className="h-5 sm:h-7 md:h-9 lg:h-9 pt-1 w-auto object-contain"
+            />
+          )}
         </div>
       </div>
 
       {/* Center section: Chat Title */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-        <span className="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 tracking-tight select-none">
-          Assistant Chat
-        </span>
-      </div>
 
       {/* Right section */}
       <div className="flex items-center space-x-2 sm:space-x-3">
@@ -192,8 +195,8 @@ const AssistantHeader = ({
           )}
         </Button>
         {notifOpen && (
-         
-          <div  ref={notifRef} className="absolute right-16 top-14 w-80 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-lg rounded-lg z-50">
+
+          <div ref={notifRef} className="absolute right-16 top-14 w-80 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-lg rounded-lg z-[60]">
             <div className="p-4">
               <h4 className="font-semibold mb-2">Notifications</h4>
               {notifications.length === 0 ? (
@@ -227,6 +230,11 @@ const AssistantHeader = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
               <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src="/avatar2.png" // <-- make sure this image exists in /public
+                  alt="User Avatar"
+                  className="object-cover"
+                />
                 <AvatarFallback
                   className={`text-sm font-medium ${theme === "dark"
                     ? "bg-orange-700 text-white"
@@ -236,11 +244,12 @@ const AssistantHeader = ({
                   {getInitials(username)}
                 </AvatarFallback>
               </Avatar>
+
             </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="w-56 bg-white dark:bg-black border border-gray-200 dark:border-neutral-900 shadow-lg"
+            className="w-56 bg-white dark:bg-black border border-gray-200 dark:border-neutral-900 shadow-lg z-[60]"
             align="end"
           >
             <div className="px-4 py-3">

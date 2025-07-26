@@ -17,7 +17,7 @@ const SuggestedQueriesSidebar = ({
 }: SuggestedQueriesSidebarProps) => {
   return (
     <motion.div
-      className="fixed top-[140px] right-8 z-40 flex flex-col items-end gap-3 border-0 m-0 p-0"
+     className="hidden sm:flex fixed top-[140px] right-8 z-40 flex-col items-end gap-3 border-0 m-0 p-0"
       initial={{ opacity: 0, x: 300 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 300 }}

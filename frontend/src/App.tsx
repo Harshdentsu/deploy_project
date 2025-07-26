@@ -21,22 +21,25 @@ import { Dealer_Analytics } from "./pages/analytics/dealer/Dealer_Analytics";
 import Admin_Analytics from "./pages/analytics/admin/Admin_Analytics";
 const queryClient = new QueryClient();
 
+interface User {
+  role?: string;
+}
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner duration={2000}/>
+      <Sonner duration={2000} />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={
-          
-               <Index />
-           
-            } />
+
+            <Index />
+
+          } />
           <Route path="/login" element={
-           
-              <Login />
-            
+
+            <Login />
+
           } />
           <Route path="/signup" element={
             <GuestRoute>
@@ -53,7 +56,17 @@ const App = () => (
           <Route path="/analytics" element={
             <ProtectedRoute>
               {(() => {
-                const user = JSON.parse(localStorage.getItem("user") || "{}");
+                const rawUser = localStorage.getItem("user");
+                console.log("Raw user from localStorage:", rawUser);
+                let user: User = {};
+
+                try {
+                  user = rawUser && rawUser !== "undefined" ? JSON.parse(rawUser) : {};
+                } catch (error) {
+                  console.error("Failed to parse user from localStorage:", error);
+                  user = {};
+                }
+
                 if (user.role === "dealer") return <Dealer_Analytics />;
                 if (user.role === "sales_rep") return <SalesRep_Analytics />;
                 if (user.role === "admin") return <Admin_Analytics />;
@@ -68,7 +81,7 @@ const App = () => (
             <ResetPassword />
           } />
           <Route path="*" element={<NotFound />} />
-          <Route path="/chat-assistant" element={< ChatAssistant/>} />
+          <Route path="/chat-assistant" element={< ChatAssistant />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -1,9 +1,0 @@
-{
-	"appId": "com.wheely.app",
-	"appName": "wheely",
-	"webDir": "build",
-	"server": {
-		"url": "https://thankful-cliff-024e50a10.1.azurestaticapps.net/",
-		"cleartext": true
-	}
-}

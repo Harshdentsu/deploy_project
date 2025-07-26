@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback,AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, User, Settings, LogOut, Moon, Sun, Bell } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -197,7 +197,11 @@ const AssistantHeader = ({
         </Button>
         {notifOpen && (
 
-          <div ref={notifRef} className="absolute right-16 top-14 w-80 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-lg rounded-lg z-[60]">
+          <div
+            ref={notifRef}
+            className="absolute right-4 sm:right-16 top-14 w-64 sm:w-80 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-lg rounded-lg z-[60]"
+          >
+
             <div className="p-4">
               <h4 className="font-semibold mb-2">Notifications</h4>
               {notifications.length === 0 ? (

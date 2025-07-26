@@ -252,20 +252,17 @@ const ChatAssistant = () => {
     }, 100);
   };
   return (
-    <div className="min-h-screen h-screen flex flex-col overflow-hidden bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-[#1A1A1F] dark:to-[#1A1A1F] dark:text-[#F4F4F5]">
+    <div className="min-h-screen h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-black dark:via-neutral-900 dark:to-black dark:text-slate-100 flex flex-col overflow-hidden">
       {/* Header always at the top, full width */}
-      <div className="sticky top-0 z-50 bg-inherit">
-        <AssistantHeader
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          handleLogout={handleLogout}
-          email={user.email}
-          role={role}
-          username={username}
-          salesRepId={user.sales_rep_id}
-        />
-      </div>
-
+      <AssistantHeader
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        handleLogout={handleLogout}
+        email={user.email}
+        role={role}
+        username={username}
+        salesRepId={user.sales_rep_id}
+      />
 
       {/* Main content area below header: sidebar | chat | suggested queries */}
       <div className="flex-1 flex flex-row min-w-0 overflow-hidden">
@@ -366,7 +363,7 @@ const ChatAssistant = () => {
 
         {/* Main chat area */}
         <div className="flex-1 flex flex-col dark:bg-black-400 dark:text-slate-100 relative transition-all duration-300 min-h-0 w-0">
-          <div className="relative dark:text-slate-100 min-h-0  overflow-y-auto px-4 pb-36 pt-4">
+          <div className="flex-1 flex flex-col overflow-hidden relative dark:text-slate-100 min-h-0">
             <ChatMessages
               messages={currentChat?.messages || []}
               isTyping={isTyping}
@@ -389,8 +386,8 @@ const ChatAssistant = () => {
                 </div>
               </div>
             )}
-           <div className="fixed bottom-0 left-0 right-0 z-40 dark:bg-[#1A1A1F] border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-               <div className="max-w-4xl mx-auto">
+            <div className="w-full pl-1 pr-2 sm:pl-4 sm:pr-10 md:pl-6 md:pr-16 mb-4">
+              <div className="w-full max-w-4xl mx-auto ml-0 mr-0 sm:ml-4 sm:mr-3">
                 <ChatInput
                   currentInput={currentInput}
                   setCurrentInput={setCurrentInput}

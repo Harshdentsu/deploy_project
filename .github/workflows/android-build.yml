@@ -1,7 +1,7 @@
 name: Android Build (Capacitor)
 
 on:
-  workflow_dispatch: # Trigger manually from GitHub
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,50 +10,41 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend # 👈 all commands inside frontend/
+        working-directory: frontend
 
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Install Dependencies
-      run: npm install
+      - name: Install Dependencies
+        run: npm install
 
-    - name: Install Capacitor CLI
-      run: npm install @capacitor/cli @capacitor/android
+      - name: Install Capacitor CLI
+        run: npm install @capacitor/cli
 
-    - name: Build React App
-      run: npm run build
+      - name: Build Web Assets
+        run: |
+          npm run build
+          npx cap sync android  # ✅ No `add`, just sync
 
-    - name: Init Capacitor (only if config not present)
-      run: npx cap init wheely com.wheely.app --web-dir=dist
-      if: steps.cap_config_check.outputs.exists != 'true'
+      - name: Build APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
-    - name: Add Android Platform
-      run: npx cap add android
-      if: ${{ !env.ACT }}
-
-    - name: Copy Web Assets
-      run: npx cap copy
-
-    - name: Build APK
-      run: |
-        cd android
-        ./gradlew assembleDebug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug.apk
-        path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk

@@ -38,11 +38,12 @@ const AssistantHeader = ({
   const [notifications, setNotifications] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement | null>(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     // Fetch notifications for sales rep
     if (role === "sales_rep" && salesRepId) {
-      fetch(`http://localhost:8000/api/salesrep-notifications/${salesRepId}`)
+      fetch(`${API_URL}/api/salesrep-notifications/${salesRepId}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) setNotifications(data.notifications);
@@ -95,7 +96,7 @@ const AssistantHeader = ({
   };
 
   const handleAccept = (requestId: string) => {
-    fetch('http://localhost:8000/api/salesrep-notifications/accept', {
+    fetch('${API_URL}/api/salesrep-notifications/accept', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ request_id: requestId }),
@@ -105,7 +106,7 @@ const AssistantHeader = ({
   };
 
   const handleDismiss = (requestId: string) => {
-    fetch('http://localhost:8000/api/salesrep-notifications/dismiss', {
+    fetch('${API_URL}/api/salesrep-notifications/dismiss', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ request_id: requestId }),

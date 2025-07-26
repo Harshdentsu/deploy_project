@@ -13,7 +13,7 @@ app = FastAPI()
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[ "https://thankful-cliff-024e50a10.1.azurestaticapps.net" ,   "http://localhost:8080",],
+    allow_origins=[ "https://thankful-cliff-024e50a10.1.azurestaticapps.net" , "http://localhost:8080",],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

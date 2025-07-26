@@ -36,10 +36,10 @@ export default function DealerPerformanceChart({
   const totalSalesSum = data.reduce((acc, val) => acc + val, 0);
 
   const backgroundColors = data.map((_, i) =>
-    i === 0 ? "rgba(34,197,94,0.7)" : "rgba(59,130,246,0.6)"
+    i === 0 ? "rgba(34,197,94,0.7)" : (i === data.length - 1 ? "rgba(239,68,68,0.7)" : "rgba(59,130,246,0.6)")
   );
   const borderColors = data.map((_, i) =>
-    i === 0 ? "rgba(34,197,94,1)" : "rgba(59,130,246,1)"
+    i === 0 ? "rgba(34,197,94,1)" : (i === data.length - 1 ? "rgba(239,68,68,1)" : "rgba(59,130,246,1)")
   );
 
   const chartData = {
@@ -90,7 +90,7 @@ export default function DealerPerformanceChart({
       <h2 className="text-base font-bold text-gray-600 dark:text-gray-200 mb-2 text-center">
         Dealer sales performance
       </h2>
-      <div className="flex-grow relative" style={{ height }}>
+      <div className="flex-grow relative" style={{ height: height }}>
         <Bar data={chartData} options={chartOptions} />
       </div>
     </div>

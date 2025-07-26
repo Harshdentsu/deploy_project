@@ -33,30 +33,6 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           
-      - name: Create .env file from GitHub secrets
-        working-directory: ./Backend
-        run: |
-          echo "AZURE_CHAT_API_URL=${{ secrets.AZURE_CHAT_API_URL }}" >> .env
-          echo "AZURE_CHAT_SUBSCRIPTION_KEY=${{ secrets.AZURE_CHAT_SUBSCRIPTION_KEY }}" >> .env
-          echo "AZURE_EMBEDDING_URL=${{ secrets.AZURE_EMBEDDING_URL }}" >> .env
-          echo "AZURE_EMBEDDING_SUBSCRIPTION_KEY=${{ secrets.AZURE_EMBEDDING_SUBSCRIPTION_KEY }}" >> .env
-          echo "AZURE_OPENAI_SERVICE_LINE=${{ secrets.AZURE_OPENAI_SERVICE_LINE }}" >> .env
-          echo "AZURE_OPENAI_BRAND=${{ secrets.AZURE_OPENAI_BRAND }}" >> .env
-          echo "AZURE_OPENAI_PROJECT=${{ secrets.AZURE_OPENAI_PROJECT }}" >> .env
-          echo "AZURE_OPENAI_API_VERSION=${{ secrets.AZURE_OPENAI_API_VERSION }}" >> .env
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
-          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> .env
-          echo "EMAIL_SENDER=${{ secrets.EMAIL_SENDER }}" >> .env
-          echo "user=${{ secrets.DB_USER }}" >> .env
-          echo "password=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "host=${{ secrets.DB_HOST }}" >> .env
-          echo "port=${{ secrets.DB_PORT }}" >> .env
-          echo "dbname=${{ secrets.DB_NAME }}" >> .env
-          echo "AZURE_OPENAI_URL=${{ secrets.AZURE_OPENAI_URL }}" >> .env
-          echo "AZURE_OPENAI_SUBSCRIPTION_KEY=${{ secrets.AZURE_OPENAI_SUBSCRIPTION_KEY }}" >> .env
-          echo "AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME=${{ secrets.AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME }}" >> .env
-
       - name: Zip backend folder contents for deployment
         working-directory: ./Backend
         run: zip -r ../release.zip ./

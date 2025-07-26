@@ -27,7 +27,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Card from "./Card";
 import { motion } from "framer-motion";
-import { Package, DollarSign, Target, TrendingUp } from "lucide-react";
+
 
 ChartJS.register(
   CategoryScale,

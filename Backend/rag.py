@@ -614,9 +614,10 @@ def sql_result_to_context(sql_result):
         return "No results found."
     rows_as_strings = []
     for row in sql_result:
-        row_str = ', '.join(f"{k}: {v}" for k, v in row.items())
+        # Format every row: each key-value on its own line
+        row_str = '\n'.join(f"{k}: {v}" for k, v in row.items() if v is not None)
         rows_as_strings.append(row_str)
-    return "\n---\n".join(rows_as_strings)
+    return "\n\n".join(rows_as_strings)
  
     
  
@@ -1539,9 +1540,26 @@ def main():
                 print("Final Response Generation")
                 print("=" * 50)
                 answer = get_llm_final_response(sql_context, rag_context, user_query)
-                print(f"shivam : {answer}")
- 
-                
+
+                def format_final_response(resp):
+                    # If response looks like JSON, pretty print
+                    try:
+                        obj = json.loads(resp)
+                        if isinstance(obj, dict):
+                            return '\n'.join(f"{k}: {v}" for k, v in obj.items())
+                        elif isinstance(obj, list):
+                            return '\n\n'.join(
+                                '\n'.join(f"{k}: {v}" for k, v in item.items()) for item in obj
+                            )
+                    except Exception:
+                        pass
+                    # Otherwise, split on commas if many, else just return
+                    if ',' in resp and not '\n' in resp:
+                        return '\n'.join([s.strip() for s in resp.split(',')])
+                    return resp
+
+                print(f"shivam : {format_final_response(answer)}")
+
                 #save_to_supabase(user_query, answer)
  
         except Exception as e:
@@ -1551,34 +1569,7 @@ def main():
         print("\n" + "-" * 50 + "\n")
  
 # def process_user_query(user_query, user_session):
-#     # This is a wrapper for your main RAG logic
-#     try:
-#         if user_session is None:
-#             print("[ERROR] No user_session set in process_user_query")
-#             return "User not authenticated."
-#         print(f"[DEBUG] process_user_query: current_user={user_session.username}, role={user_session.role}, dealer_id={user_session.dealer_id}")
-#         sql = get_llm_sql(user_query, user_session)
-#         sql = clean_sql_output(sql)
-#         sql_context = "No results found."
-#         if sql.strip().upper() != "NO_SQL" and sql.strip().lower().startswith("select"):
-#             sql_result, sql_error = try_select_sql(sql)
-#             if sql_result:
-#                 sql_context = sql_result_to_context(sql_result)
-#         rewritten_query = rewrite_query_for_rag(user_query)
-#         query_embedding = get_embedding(preprocess_query(rewritten_query))
-#         metadata_filter = extract_metadata_with_llm(user_query)
-#         vector_rows = vector_store_similarity_search(
-#             query_embedding,
-#             top_k=10,
-#             metadata_filter=metadata_filter,
-#             similarity_threshold=0.08
-#         )
-#         rag_context = vector_rows_to_context(vector_rows) if vector_rows else "No relevant vector context found."
-#         answer = get_llm_final_response(sql_context, rag_context, user_query, user_session)
-#         return answer
-#     except Exception as e:
-#         print("[ERROR] process_user_query failed:", e)
-#         return "Sorry, I can't assist with that."
+
  
 if __name__ == "__main__":
     main()

@@ -16,8 +16,8 @@ load_dotenv()
 router = APIRouter()
 
 # Use environment variables for base URLs
-FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:8080")
-BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "https://thankful-cliff-024e50a10.1.azurestaticapps.net/")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "wheely-backend-cmdzb7awfucmc6c0.australiaeast-01.azurewebsites.net")
 
 JWT_SECRET = os.getenv("EMAIL_VERIFICATION_SECRET", "super-secret-key")
 JWT_ALGORITHM = "HS256"

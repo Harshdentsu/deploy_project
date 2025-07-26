@@ -30,13 +30,15 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install Capacitor CLI
-        run: npm install @capacitor/cli
+      - name: Install Capacitor Packages
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Build Web Assets
-        run: |
-          npm run build
-          npx cap sync android  # ✅ No `add`, just sync
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
 
       - name: Build APK
         run: |

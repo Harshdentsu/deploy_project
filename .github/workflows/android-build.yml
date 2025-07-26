@@ -1,4 +1,3 @@
-
 name: Android Build (Capacitor)
 
 on:
@@ -11,7 +10,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend # 👈 run all steps inside frontend/
+        working-directory: frontend # 👈 all commands inside frontend/
 
     steps:
     - name: Checkout Repo
@@ -32,11 +31,21 @@ jobs:
       run: npm install
 
     - name: Install Capacitor CLI
-      run: npm install @capacitor/cli
+      run: npm install @capacitor/cli @capacitor/android
 
-    - name: Copy Android Folder (only if not committed)
+    - name: Build React App
+      run: npm run build
+
+    - name: Init Capacitor (only if config not present)
+      run: npx cap init wheely com.wheely.app --web-dir=dist
+      if: steps.cap_config_check.outputs.exists != 'true'
+
+    - name: Add Android Platform
       run: npx cap add android
-      if: ${{ !env.ACT }} # skip if running locally with act
+      if: ${{ !env.ACT }}
+
+    - name: Copy Web Assets
+      run: npx cap copy
 
     - name: Build APK
       run: |
